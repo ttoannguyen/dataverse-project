@@ -1,0 +1,17 @@
+{
+  "status": "OK",
+  "data": {
+    "items": [
+      {
+        "name": "Climate Dataset 1",
+        "global_id": "doi:10.1234/example1",
+        "description": "This is a mock dataset about climate."
+      },
+      {
+        "name": "Climate Dataset 2",
+        "global_id": "doi:10.1234/example2",
+        "description": "Another dataset about climate topics."
+      }
+    ]
+  }
+}
