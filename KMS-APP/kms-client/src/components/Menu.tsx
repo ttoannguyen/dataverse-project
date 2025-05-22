@@ -1,14 +1,7 @@
-import { useNavigate } from "react-router-dom";
-import { Button } from "./common/Button";
+import { useNavigate, useLocation } from "react-router-dom";
 import { searchDatasets } from "../api/dataverse";
-import {
-  ChevronDown,
-  Home,
-  Database,
-  Info,
-  AlignJustify,
-  Newspaper,
-} from "lucide-react";
+import { Button } from "./ui/button";
+import { Home, Database, Info, AlignJustify, Newspaper } from "lucide-react";
 
 type MenuItem = {
   icon: React.ReactNode;
@@ -52,17 +45,26 @@ const menuItems: MenuItem[] = [
 
 function Menu() {
   const navigate = useNavigate();
+  const location = useLocation();
+
   return (
     <div className="flex">
       {menuItems.map((item, index) => (
         <Button
           key={index}
+          variant={location.pathname === item.path ? "default" : "ghost"}
           onClick={() => {
             navigate(item.path);
-            item.onClick;
-            searchDatasets();
+            item.onClick();
+            if (item.path === "/dataverse") {
+              searchDatasets();
+            }
           }}
-          className="flex items-center gap-2"
+          className={`flex items-center !px-6 rounded-none gap-2 transition-colors duration-200 animate-fade-in ${
+            location.pathname === item.path
+              ? "bg-[var(--blue-6)] text-[var(--blue-12)] hover:bg-[var(--blue-8)]"
+              : "text-[var(--blue-1)] hover:bg-[var(--blue-3)] hover:text-[var(--blue-11)]"
+          }`}
         >
           {item.icon}
           <span>{item.label}</span>
