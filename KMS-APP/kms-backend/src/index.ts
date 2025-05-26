@@ -1,14 +1,19 @@
-import express from "express";
-import axios from "axios";
-import cors from "cors";
-import test from "./test.json";
+const express = require("express");
+const axios = require("axios");
+const cors = require("cors");
+const test = require("./test.json");
+
+// router
+const appRouter = require("./routes/app");
+const clientDB = require("../utils/clientDB");
 
 const app = express();
 app.use(cors());
+app.use(express.json());
 
 const DATAVERSE_API = "https://demo.dataverse.org/api";
 
-app.get("/search", async (req, res) => {
+app.get("/search", async (req: any, res: any) => {
   const query = req.query.q || "climate";
 
   try {
@@ -24,6 +29,9 @@ app.get("/search", async (req, res) => {
 });
 
 const PORT = 3000;
+
+app.use("/api", appRouter);
+
 app.listen(PORT, () => {
   console.log(`✅ Server đang chạy tại http://localhost:${PORT}`);
 });
