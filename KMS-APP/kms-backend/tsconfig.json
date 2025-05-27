@@ -2,12 +2,15 @@
   "compilerOptions": {
     "target": "ES6",
     "module": "CommonJS",
+    "moduleResolution": "Node",
     "esModuleInterop": true,
     "outDir": "dist",
     "rootDir": "src",
     "strict": true,
     "allowSyntheticDefaultImports": true,
-    "moduleDetection": "force"
+    "moduleDetection": "force",
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
   },
   "include": ["src"]
 }
