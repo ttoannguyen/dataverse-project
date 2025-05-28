@@ -1,18 +1,17 @@
 import React, { type FormEvent, useEffect, useState } from "react";
-import { useAuth } from "../hooks/useAuth";
-import { useNavigate } from "react-router-dom";
+import useAuth from "../hooks/useAuth";
 
 const LoginForm: React.FC = () => {
-  const { authState, handleLogin } = useAuth();
+  const { isAuthenticated, isLoading, error, handleLogin } = useAuth();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const navigate = useNavigate();
+
   // Navigate to home page on successful login
   useEffect(() => {
-    if (authState.isAuthenticated) {
-      navigate("/");
+    if (isAuthenticated) {
+      window.location.href = "/"; // Use window.location.href to avoid sandbox issues
     }
-  }, [authState.isAuthenticated, navigate]);
+  }, [isAuthenticated]);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -49,15 +48,13 @@ const LoginForm: React.FC = () => {
             required
           />
         </div>
-        {authState.error && (
-          <p className="text-red-500 mb-4">{authState.error}</p>
-        )}
+        {error && <p className="text-red-500 mb-4">{error}</p>}
         <button
           type="submit"
-          disabled={authState.loading}
-          className="w-full bg-[#292d56] text-white p-2 rounded hover:bg-[var(--blue-8)] disabled:bg-blue-300"
+          disabled={isLoading}
+          className="w-full bg-[#292d56] text-white p-2 rounded hover:bg-blue-600 disabled:bg-blue-300"
         >
-          {authState.loading ? "Logging in..." : "Login"}
+          {isLoading ? "Logging in..." : "Login"}
         </button>
       </form>
     </div>

@@ -1,77 +1,64 @@
 import { useNavigate, useLocation } from "react-router-dom";
-import { searchDatasets } from "../api/dataverse";
 import { Button } from "./ui/button";
 import { Home, Database, Info, AlignJustify, Newspaper } from "lucide-react";
 
-type MenuItem = {
+interface MenuItem {
   icon: React.ReactNode;
   label: string;
   path: string;
-  onClick: () => void;
-};
+}
 
 const menuItems: MenuItem[] = [
   {
     icon: <Home size={16} />,
     label: "Home",
     path: "/",
-    onClick: () => console.log("Home"),
   },
   {
     icon: <Info size={16} />,
     label: "About",
     path: "/about",
-    onClick: () => console.log("About"),
   },
   {
     icon: <Database size={16} />,
     label: "Dataverse",
     path: "/dataverse",
-    onClick: () => console.log("Dataverse"),
   },
   {
     icon: <AlignJustify size={16} />,
     label: "Topics",
     path: "/topics",
-    onClick: () => console.log("Topics"),
   },
   {
     icon: <Newspaper size={16} />,
     label: "Blog",
     path: "/blog",
-    onClick: () => console.log("Blog"),
   },
 ];
 
-function Menu() {
+const Menu: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
   return (
-    <div className="flex">
-      {menuItems.map((item, index) => (
+    <div className="flex flex-wrap gap-2">
+      {menuItems.map((item) => (
         <Button
-          key={index}
+          key={item.path}
           variant={location.pathname === item.path ? "default" : "ghost"}
-          onClick={() => {
-            navigate(item.path);
-            item.onClick();
-            if (item.path === "/dataverse") {
-              searchDatasets();
-            }
-          }}
-          className={`flex items-center !px-6 rounded-none gap-2 transition-colors duration-200 animate-fade-in ${
+          onClick={() => navigate(item.path)}
+          className={`flex items-center px-6 py-2 rounded-md gap-2 transition-colors duration-300 animate-fade-in ${
             location.pathname === item.path
-              ? "bg-[var(--blue-6)] text-[var(--blue-12)] hover:bg-[var(--blue-8)]"
-              : "text-[var(--blue-1)] hover:bg-[var(--blue-3)] hover:text-[var(--blue-11)]"
+              ? "bg-blue-600 text-white hover:bg-blue-700"
+              : "text-gray-100 hover:bg-blue-500 hover:text-white"
           }`}
         >
           {item.icon}
-          <span>{item.label}</span>
+          <span className="font-medium">{item.label}</span>
         </Button>
       ))}
     </div>
   );
-}
+};
 
 export default Menu;

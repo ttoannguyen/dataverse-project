@@ -15,4 +15,14 @@ export default {
     synchronize: process.env.DB_SYNC !== "production", // DEVELOPMENT ONLY
     logging: process.env.DB_LOGGING === "true",
   },
+  // Danh sách endpoint công khai không cần xác thực
+  PUBLIC_ENDPOINTS: [
+    "/auth/login",
+    "/auth/refresh",
+    "/auth/logout",
+    "/users/register",
+    "/dataverse/init",
+    "/dataverse/datasets",
+    "/dataverse/count",
+  ],
 };

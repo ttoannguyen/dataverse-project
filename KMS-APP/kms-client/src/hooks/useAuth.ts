@@ -1,49 +1,154 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import { useState } from "react";
-import { login } from "../services/api/authApi";
-import type { LoginCredentials, LoginResponse } from "@/types/authType";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
+import axios from "axios";
+
+interface JwtPayload {
+  userId: string;
+  exp: number;
+}
 
 interface AuthState {
   isAuthenticated: boolean;
-  token: string | null;
+  isLoading: boolean;
   userId: string | null;
-  userName: string | null;
   error: string | null;
-  loading: boolean;
 }
 
-export const useAuth = () => {
+const useAuth = () => {
+  const navigate = useNavigate();
   const [authState, setAuthState] = useState<AuthState>({
     isAuthenticated: false,
-    token: null,
+    isLoading: true,
     userId: null,
-    userName: null,
     error: null,
-    loading: false,
   });
 
-  const handleLogin = async (credentials: LoginCredentials) => {
-    setAuthState({ ...authState, loading: true, error: null });
-    try {
-      const response: LoginResponse = await login(credentials);
-      console.log(response);
+  const checkTokenValidity = async () => {
+    const accessToken = localStorage.getItem("accessToken");
+
+    if (!accessToken) {
       setAuthState({
-        isAuthenticated: true,
-        token: response.accessToken,
-        userId: response.user ? response.user.id : null,
-        userName: response.user ? response.user.username : null,
+        isAuthenticated: false,
+        isLoading: false,
+        userId: null,
         error: null,
-        loading: false,
       });
-      localStorage.setItem("token", response.accessToken);
+      navigate("/login");
+      return;
+    }
+
+    try {
+      const decoded: JwtPayload = jwtDecode(accessToken);
+      const currentTime = Date.now() / 1000;
+
+      if (decoded.exp < currentTime) {
+        // Access token hết hạn, gửi yêu cầu refresh
+        try {
+          const response = await axios.post<{ accessToken: string }>(
+            "http://localhost:3000/auth/refresh",
+            {},
+            { withCredentials: true }
+          );
+          const newAccessToken = response.data.accessToken;
+          localStorage.setItem("accessToken", newAccessToken);
+
+          setAuthState({
+            isAuthenticated: true,
+            isLoading: false,
+            userId: decoded.userId,
+            error: null,
+          });
+        } catch (refreshError) {
+          console.error("Refresh token failed:", refreshError);
+          localStorage.removeItem("accessToken");
+          setAuthState({
+            isAuthenticated: false,
+            isLoading: false,
+            userId: null,
+            error: null,
+          });
+          navigate("/login");
+        }
+      } else {
+        setAuthState({
+          isAuthenticated: true,
+          isLoading: false,
+          userId: decoded.userId,
+          error: null,
+        });
+      }
     } catch (error) {
+      console.error("Error verifying token:", error);
+      localStorage.removeItem("accessToken");
       setAuthState({
-        ...authState,
-        error: "Invalid credentials",
-        loading: false,
+        isAuthenticated: false,
+        isLoading: false,
+        userId: null,
+        error: null,
       });
+      navigate("/login");
     }
   };
 
-  return { authState, handleLogin };
+  const handleLogin = async (credentials: {
+    username: string;
+    password: string;
+  }) => {
+    setAuthState((prev) => ({ ...prev, isLoading: true, error: null }));
+    try {
+      const response = await axios.post<{ accessToken: string }>(
+        "http://localhost:3000/api/_v1/auth/login",
+        credentials,
+        { withCredentials: true }
+      );
+      const accessToken = response.data.accessToken;
+      localStorage.setItem("accessToken", accessToken);
+      const decoded: JwtPayload = jwtDecode(accessToken);
+      setAuthState({
+        isAuthenticated: true,
+        isLoading: false,
+        userId: decoded.userId,
+        error: null,
+      });
+      navigate("/");
+    } catch (error: any) {
+      const errorMessage =
+        error.response?.data?.message || "Login failed. Please try again.";
+      setAuthState((prev) => ({
+        ...prev,
+        isLoading: false,
+        error: errorMessage,
+      }));
+    }
+  };
+
+  const logout = async () => {
+    try {
+      await axios.post(
+        "http://localhost:3000/auth/logout",
+        {},
+        { withCredentials: true }
+      );
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+    localStorage.removeItem("accessToken");
+    setAuthState({
+      isAuthenticated: false,
+      isLoading: false,
+      userId: null,
+      error: null,
+    });
+    navigate("/login");
+  };
+
+  useEffect(() => {
+    checkTokenValidity();
+  }, []);
+
+  return { ...authState, handleLogin, logout };
 };
+
+export default useAuth;

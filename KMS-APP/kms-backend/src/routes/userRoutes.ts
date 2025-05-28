@@ -1,17 +1,14 @@
-import { Router } from "express";
-import { userController } from "../controllers/UserController";
-import { authController } from "../controllers/AuthController";
-import { authMiddleware } from "../middleware/authMiddleware";
+import express from "express";
+import { userController } from "../controllers/userController";
 
-const userRouter = Router();
+const userRouter = express.Router();
 
-// Route để lấy tất cả người dùng (yêu cầu xác thực)
-userRouter.get("/", authMiddleware, userController.getUsers);
+// Route để lấy danh sách tất cả người dùng
+userRouter.get("/", userController.getUsers);
 
-// Route để lấy người dùng theo ID (yêu cầu xác thực)
-userRouter.get("/:id", authMiddleware, userController.getUserById);
+// Route để lấy thông tin người dùng theo ID
+userRouter.get("/:id", userController.getUserById);
 
-userRouter.post("/", userController.registerUser);
-userRouter.post("/login", authController.login);
+userRouter.post("/register", userController.registerUser);
 
 export default userRouter;

@@ -8,7 +8,6 @@ import { AppDataSource } from "../config/db/data-source";
 import {
   RegisterDto,
   LoginDto,
-  RefreshTokenDto,
   AuthResponseDto,
 } from "../dtos/request/AuthDto";
 import { userMapper } from "../mappers/UserMapper";
@@ -20,17 +19,17 @@ const refreshTokenRepository: Repository<RefreshToken> =
   AppDataSource.getRepository(RefreshToken);
 
 export const authService = {
-  login: async (dto: LoginDto): Promise<AuthResponseDto> => {
+  login: async (
+    dto: LoginDto
+  ): Promise<AuthResponseDto & { refreshToken: string }> => {
     const user = await userRepository.findOne({
       where: { username: dto.username },
     });
-    console.log("User found:", user);
     if (!user) {
       throw new Error("Invalid credentials");
     }
 
     const isValid = await bcrypt.compare(dto.password, user.password);
-
     if (!isValid) {
       throw new Error("Invalid credentials");
     }
@@ -47,9 +46,11 @@ export const authService = {
     };
   },
 
-  refresh: async (dto: RefreshTokenDto): Promise<{ accessToken: string }> => {
+  refresh: async (
+    refreshToken: string
+  ): Promise<{ accessToken: string; refreshToken: string }> => {
     const storedToken = await refreshTokenRepository.findOne({
-      where: { token: dto.refreshToken },
+      where: { token: refreshToken },
       relations: ["user"],
     });
 
@@ -57,14 +58,24 @@ export const authService = {
       throw new Error("Invalid or expired refresh token");
     }
 
+    // Xóa refresh token cũ
+    await refreshTokenRepository.delete({ token: refreshToken });
+
+    // Tạo access token mới
     const accessToken = jwt.sign({ userId: storedToken.userId }, JWT_SECRET, {
       expiresIn: "15m",
     });
-    return { accessToken };
+
+    // Tạo refresh token mới (rotation)
+    const newRefreshToken = await authService.generateRefreshToken(
+      storedToken.userId
+    );
+
+    return { accessToken, refreshToken: newRefreshToken.token };
   },
 
-  logout: async (dto: RefreshTokenDto): Promise<void> => {
-    await refreshTokenRepository.delete({ token: dto.refreshToken });
+  logout: async (refreshToken: string): Promise<void> => {
+    await refreshTokenRepository.delete({ token: refreshToken });
   },
 
   generateRefreshToken: async (userId: string): Promise<RefreshToken> => {

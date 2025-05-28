@@ -1,20 +1,41 @@
-import React from "react";
-import { Routes, Route } from "react-router-dom";
-import Login from "./pages/Login";
-import Home from "./pages/Home";
-import Header from "./components/Header";
-import Data from "./components/dataverse/Data";
+// import { BrowserRouter, Routes, Route } from "react-router-dom";
+// import Home from "./pages/Home";
+// import Login from "./pages/Login";
 
-const App: React.FC = () => {
+// const App = () => {
+//   return (
+//     <BrowserRouter>
+//       <Routes>
+//         <Route path="/login" element={<Login />} />
+//         <Route path="/" element={<Home />} />
+//       </Routes>
+//     </BrowserRouter>
+//   );
+// };
+
+// export default App;
+
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { routes } from "./routes/routes";
+
+const App = () => {
   return (
-    <div>
-      <Header />
+    <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/dataverse" element={<Data />} />
-        <Route path="/login" element={<Login />} />
+        {routes.map((route) => (
+          <Route key={route.path} path={route.path} element={route.element}>
+            {route.children?.map((child) => (
+              <Route
+                key={child.path || "index"}
+                index={child.index}
+                path={child.path}
+                element={child.element}
+              />
+            ))}
+          </Route>
+        ))}
       </Routes>
-    </div>
+    </BrowserRouter>
   );
 };
 
