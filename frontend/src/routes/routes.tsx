@@ -13,7 +13,7 @@ export const routes: RouteObject[] = [
     element: <Layout />,
     children: [
       {
-        index: true, // This makes Home the default child route for "/"
+        index: true,
         element: <Home />,
       },
 
