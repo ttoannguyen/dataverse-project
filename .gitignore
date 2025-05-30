@@ -1,2 +1,7 @@
-git-filter-repo
+# .gitignore
+.env
+**/.env
+*.env
+*.env.*
 
+./git-filter-repo
