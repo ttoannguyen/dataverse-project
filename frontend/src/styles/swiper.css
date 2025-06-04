@@ -1,0 +1,17 @@
+.swiper-pagination {
+  text-align: right;
+  right: 30px;
+}
+
+.swiper-pagination-bullet {
+  width: 15px;
+  height: 15px;
+  background-color: #fff;
+}
+
+.swiper-pagination-fraction,
+.swiper-pagination-custom,
+.swiper-horizontal > .swiper-pagination-bullets,
+.swiper-pagination-bullets.swiper-pagination-horizontal {
+  left: -30px !important;
+}
