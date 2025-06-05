@@ -1,0 +1,17 @@
+[
+  {
+    "title": "Platform Maintenance Completed",
+    "time": "2025-06-02",
+    "summary": "The scheduled system maintenance on June 1st has been successfully completed. All systems are now fully operational."
+  },
+  {
+    "title": "New Search Filters Added",
+    "time": "2025-05-28",
+    "summary": "Users can now search datasets using new filters such as data type, contributor name, and creation time."
+  },
+  {
+    "title": "Improved Dataset Upload Speed",
+    "time": "2025-05-22",
+    "summary": "We’ve optimized our backend to enhance the upload speed for large datasets, especially for rural connectivity zones."
+  }
+]
