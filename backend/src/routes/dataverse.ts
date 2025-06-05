@@ -2,7 +2,7 @@ import express, { Router, Request, Response } from "express";
 import axios from "axios";
 
 const router: Router = express.Router();
-const DATAVERSE_SERVER_URL = "https://demo.dataverse.org";
+const DATAVERSE_SERVER_URL = "http://172.18.54.49:8080/";
 
 interface SearchResult {
   status: string;

@@ -6,6 +6,7 @@ import About from "@/pages/About";
 import Topic from "@/pages/Topic";
 import Blog from "@/pages/Blog";
 import Dataverse from "@/pages/Dataverse";
+import Dataverse_test from "@/pages/Dataverse_test";
 
 export const routes: RouteObject[] = [
   {
