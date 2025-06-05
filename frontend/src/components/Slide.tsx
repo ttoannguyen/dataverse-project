@@ -14,14 +14,14 @@ const Slide = () => {
       effect={"fade"}
       spaceBetween={50}
       slidesPerView={1}
-      onSlideChange={() => console.log("slide change")}
+      // onSlideChange={() => console.log("slide change")}
       pagination={{ clickable: true }}
       autoplay={{
         delay: 3000,
         disableOnInteraction: false,
       }}
       loop={true}
-      onSwiper={(swiper) => console.log(swiper)}
+      // onSwiper={(swiper) => console.log(swiper)}
     >
       <SwiperSlide>
         <div className="relative">
