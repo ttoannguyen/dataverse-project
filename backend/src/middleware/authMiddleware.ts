@@ -21,9 +21,13 @@ export const authMiddleware = async (
   const fullPath = req.path.startsWith(config.server.API_BASE_URL)
     ? req.path.replace(config.server.API_BASE_URL, "")
     : req.path;
-  if (config.PUBLIC_ENDPOINTS.includes(fullPath)) {
-    return next();
-  }
+
+  // sua lai de chap nhan bien
+  const isPublic = config.PUBLIC_ENDPOINTS.some((path) =>
+    fullPath.startsWith(path.replace(/:.*$/, ""))
+  );
+
+  if (isPublic) return next();
 
   try {
     const authHeader = req.headers.authorization;
