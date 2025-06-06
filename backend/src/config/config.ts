@@ -24,5 +24,6 @@ export default {
     "/dataverse/init",
     "/dataverse/datasets",
     "/dataverse/count",
+    "/dataverseItem/getDataset",
   ],
 };
