@@ -7,6 +7,8 @@ import Topic from "@/pages/Topic";
 import Blog from "@/pages/Blog";
 import Dataverse from "@/pages/Dataverse";
 import Dataverse_test from "@/pages/Dataverse_test";
+import Dataset from "@/pages/Dataset";
+import Haha from "@/pages/Haha";
 
 export const routes: RouteObject[] = [
   {
@@ -37,6 +39,10 @@ export const routes: RouteObject[] = [
       {
         path: "/blog",
         element: <Blog />,
+      },
+      {
+        path: "/dataset",
+        element: <Dataset />,
       },
     ],
   },
