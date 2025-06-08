@@ -2,8 +2,11 @@
 import type { LoginCredentials, LoginResponse } from "@/types/authType";
 import axios from "axios";
 
+const baseURL =
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:3000/api/v1";
+
 const apiClient = axios.create({
-  baseURL: "http://localhost:3000/api/v1/users",
+  baseURL: `${baseURL}/users`,
   headers: {
     "Content-Type": "application/json",
   },

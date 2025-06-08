@@ -1,5 +1,8 @@
 import axios from "axios";
 
+const baseURL =
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:3000/api/v1";
+
 interface DataverseCounts {
   totalDataverses: number;
   totalDatasets: number;
@@ -27,9 +30,7 @@ interface Dataset {
 const dataverseApi = {
   init: async (): Promise<void> => {
     try {
-      const response = await axios.get(
-        "http://localhost:3000/api/_v1/dataverse/init"
-      );
+      const response = await axios.get(`${baseURL}/dataverse/init`);
       console.log(response.data);
     } catch (error) {
       console.error("Init failed", error);
@@ -38,7 +39,7 @@ const dataverseApi = {
 
   getCounts: async (): Promise<DataverseCounts> => {
     const response = await axios.get<DataverseCounts>(
-      "http://localhost:3000/api/_v1/dataverse/count"
+      `${baseURL}/dataverse/count`
     );
     console.log(response.data);
     return response.data;
@@ -46,7 +47,7 @@ const dataverseApi = {
 
   getDatasets: async (): Promise<Dataset[]> => {
     const response = await axios.get<Dataset[]>(
-      "http://localhost:3000/api/_v1/dataverse/datasets"
+      `${baseURL}/dataverse/datasets`
     );
     console.log(response.data);
     return response.data;
