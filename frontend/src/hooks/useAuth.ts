@@ -1,6 +1,5 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+// hooks/useAuth.ts
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import axios from "axios";
 
@@ -17,7 +16,6 @@ interface AuthState {
 }
 
 const useAuth = () => {
-  const navigate = useNavigate();
   const [authState, setAuthState] = useState<AuthState>({
     isAuthenticated: false,
     isLoading: true,
@@ -35,7 +33,6 @@ const useAuth = () => {
         userId: null,
         error: null,
       });
-      navigate("/login");
       return;
     }
 
@@ -44,33 +41,22 @@ const useAuth = () => {
       const currentTime = Date.now() / 1000;
 
       if (decoded.exp < currentTime) {
-        // Access token hết hạn, gửi yêu cầu refresh
-        try {
-          const response = await axios.post<{ accessToken: string }>(
-            "http://localhost:3000/auth/refresh",
-            {},
-            { withCredentials: true }
-          );
-          const newAccessToken = response.data.accessToken;
-          localStorage.setItem("accessToken", newAccessToken);
+        // Token hết hạn → thử refresh
+        const res = await axios.post(
+          "http://localhost:3000/auth/refresh",
+          {},
+          { withCredentials: true }
+        );
+        const newAccessToken = res.data.accessToken;
+        localStorage.setItem("accessToken", newAccessToken);
+        const newDecoded: JwtPayload = jwtDecode(newAccessToken);
 
-          setAuthState({
-            isAuthenticated: true,
-            isLoading: false,
-            userId: decoded.userId,
-            error: null,
-          });
-        } catch (refreshError) {
-          console.error("Refresh token failed:", refreshError);
-          localStorage.removeItem("accessToken");
-          setAuthState({
-            isAuthenticated: false,
-            isLoading: false,
-            userId: null,
-            error: null,
-          });
-          navigate("/login");
-        }
+        setAuthState({
+          isAuthenticated: true,
+          isLoading: false,
+          userId: newDecoded.userId,
+          error: null,
+        });
       } else {
         setAuthState({
           isAuthenticated: true,
@@ -79,8 +65,7 @@ const useAuth = () => {
           error: null,
         });
       }
-    } catch (error) {
-      console.error("Error verifying token:", error);
+    } catch (err) {
       localStorage.removeItem("accessToken");
       setAuthState({
         isAuthenticated: false,
@@ -88,7 +73,6 @@ const useAuth = () => {
         userId: null,
         error: null,
       });
-      navigate("/login");
     }
   };
 
@@ -96,31 +80,29 @@ const useAuth = () => {
     username: string;
     password: string;
   }) => {
-    setAuthState((prev) => ({ ...prev, isLoading: true, error: null }));
     try {
-      const response = await axios.post<{ accessToken: string }>(
-        "http://localhost:3000/api/_v1/auth/login",
+      const res = await axios.post(
+        "http://localhost:3000/api/v1/auth/login",
         credentials,
         { withCredentials: true }
       );
-      const accessToken = response.data.accessToken;
-      localStorage.setItem("accessToken", accessToken);
-      const decoded: JwtPayload = jwtDecode(accessToken);
+      const token = res.data.accessToken;
+      localStorage.setItem("accessToken", token);
+      const decoded: JwtPayload = jwtDecode(token);
+
       setAuthState({
         isAuthenticated: true,
         isLoading: false,
         userId: decoded.userId,
         error: null,
       });
-      navigate("/");
-    } catch (error: any) {
-      const errorMessage =
-        error.response?.data?.message || "Login failed. Please try again.";
-      setAuthState((prev) => ({
-        ...prev,
+    } catch (err: any) {
+      setAuthState({
+        isAuthenticated: false,
         isLoading: false,
-        error: errorMessage,
-      }));
+        userId: null,
+        error: err.response?.data?.message || "Đăng nhập thất bại",
+      });
     }
   };
 
@@ -131,8 +113,8 @@ const useAuth = () => {
         {},
         { withCredentials: true }
       );
-    } catch (error) {
-      console.error("Logout failed:", error);
+    } catch (err) {
+      console.error("Logout failed", err);
     }
     localStorage.removeItem("accessToken");
     setAuthState({
@@ -141,7 +123,6 @@ const useAuth = () => {
       userId: null,
       error: null,
     });
-    navigate("/login");
   };
 
   useEffect(() => {
