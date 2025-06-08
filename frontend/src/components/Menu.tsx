@@ -34,6 +34,12 @@ const menuItems: MenuItem[] = [
     label: "Blog",
     path: "/blog",
   },
+
+  {
+    icon: <Newspaper size={16} />,
+    label: "Dataset",
+    path: "/dataset?persistentId=doi:10.7910/DVN/SELPQ9",
+  },
 ];
 
 const Menu: React.FC = () => {
