@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import datasetApi from "@/services/DatasetApi";
 import axios from "axios";
 import type {
+  DatasetFile,
   DatasetInterface,
   MetadataBlocks,
 } from "@/types/datasetInterface";
@@ -13,6 +14,7 @@ import {
   useNavigate,
   useSearchParams,
 } from "react-router-dom";
+import FileBlock from "@/components/FileBlock";
 
 // import "../../assets/icon/fontawesome/css/all.min.css";
 // import defaultFile from "../../assets/img/muti_file_icon.png";
@@ -26,6 +28,8 @@ const Dataset = () => {
 
   const [dataset, setDataset] = useState<DatasetInterface | null>(null);
   const [metadata, setMetadata] = useState<MetadataBlocks | null>(null);
+  const [files, setFiles] = useState<DatasetFile[] | null>(null);
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -33,6 +37,9 @@ const Dataset = () => {
   const datasetId = pathParts[pathParts.length - 1];
   const [isOpen, setIsOpen] = useState(false);
   const [accessIsOpen, setAccessIsOpen] = useState(false);
+  const [fullDescMode, setFullDescMode] = useState<boolean>(false);
+  const [shortDescMode, setShortDescMode] = useState<boolean>(false);
+  const descRef = useRef<HTMLDivElement>(null);
 
   const toggleDropdown = () => setIsOpen(!isOpen);
 
@@ -48,8 +55,10 @@ const Dataset = () => {
 
       if (tempDataset) {
         console.log(tempDataset);
+
         setDataset(tempDataset);
         setMetadata(tempDataset.data.latestVersion.metadataBlocks);
+        setFiles(tempDataset.data.latestVersion.files);
       }
 
       setLoading(false);
@@ -58,9 +67,20 @@ const Dataset = () => {
     getDatasetItem();
   }, [persistentId]);
 
-  if (metadata) {
-    console.log(metadata);
+  if (files) {
+    console.log(files);
   }
+
+  useEffect(() => {
+    if (descRef.current) {
+      const descHeight = descRef.current.scrollHeight;
+
+      if (descHeight < 250) {
+        setShortDescMode(true);
+        setFullDescMode(true);
+      }
+    }
+  }, [metadata]);
 
   if (loading) {
     return (
@@ -206,8 +226,45 @@ const Dataset = () => {
           <div className="mt-8 pl-4 pr-4">
             <div className=" grid grid-cols-[30%_70%] gap-4">
               <div className="font-bold">Description</div>
-              <div className="text-justify">
+              <div
+                ref={descRef}
+                className={
+                  fullDescMode
+                    ? "text-justify relative"
+                    : "text-justify max-h-[250px] overflow-hidden relative"
+                }
+              >
                 {metadata?.citation.fields[3].value[0].dsDescriptionValue.value}
+
+                {!shortDescMode && (
+                  <>
+                    {fullDescMode ? (
+                      <div className="text-center top-[100%] w-full absolute bottom-0">
+                        <button
+                          className="text-hover-underline-blue cursor-pointer"
+                          onClick={() => setFullDescMode(false)}
+                        >
+                          Collapse Description [-]
+                        </button>
+                      </div>
+                    ) : (
+                      <div
+                        className="text-center pt-[250px] w-full absolute bottom-0"
+                        style={{
+                          background:
+                            "linear-gradient(180deg, hsla(0, 0%, 100%, 0), #fff 80%)",
+                        }}
+                      >
+                        <button
+                          className="text-hover-underline-blue cursor-pointer"
+                          onClick={() => setFullDescMode(true)}
+                        >
+                          Read full Description [+]
+                        </button>
+                      </div>
+                    )}
+                  </>
+                )}
               </div>
             </div>
 
@@ -288,6 +345,8 @@ const Dataset = () => {
           </div>
         </div>
       </div>
+
+      <FileBlock metadata={metadata} files={files} />
     </div>
   );
 };

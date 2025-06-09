@@ -36,6 +36,7 @@ export interface DatasetVersion {
   license: License;
   fileAccessRequest: boolean;
   metadataBlocks: MetadataBlocks;
+  files: DatasetFile[];
 }
 
 export interface License {
@@ -82,4 +83,34 @@ export interface ControlledVocabularyField {
   multiple: boolean;
   typeClass: "controlledVocabulary";
   value: string[];
+}
+
+export interface DatasetFile {
+  label: string;
+  restricted: boolean;
+  version: number;
+  datasetVersionId: number;
+  dataFile: DataFile;
+}
+
+export interface DataFile {
+  id: number;
+  persistentId: string;
+  filename: string;
+  contentType: string;
+  friendlyType: string;
+  filesize: number;
+  storageIdentifier: string;
+  rootDataFileId: number;
+  md5: string;
+  checksum: Checksum;
+  tabularData: boolean;
+  creationDate: string; // ISO format: "YYYY-MM-DD"
+  publicationDate: string; // ISO format
+  fileAccessRequest: boolean;
+}
+
+export interface Checksum {
+  type: string; // e.g., "MD5"
+  value: string; // checksum value
 }
