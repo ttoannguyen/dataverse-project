@@ -1,7 +1,7 @@
 // src/services/dataverse/dataverse.service.ts
 
 import axios from "axios";
-import redis from "../../config/regis"; // nơi bạn khởi tạo Redis client
+import redis from "../../config/redis"; // nơi bạn khởi tạo Redis client
 import { DataverseSearchResponse } from "../../types/dataverse";
 
 const BASE = process.env.DATAVERSE_API_BASE || "https://demo.dataverse.org/api";
