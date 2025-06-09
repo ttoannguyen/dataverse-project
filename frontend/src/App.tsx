@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { routes } from "./routes/routes";
+import "./styles/globals.css";
 import "./styles/swiper.css";
 
 const App = () => {
