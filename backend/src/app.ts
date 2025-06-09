@@ -2,7 +2,7 @@ import express from "express";
 import cors from "cors";
 import morgan from "morgan";
 import cookieParser from "cookie-parser";
-import appRouter from "./routes/appRoutes";
+import appRouter from "./routes";
 import config from "./config/config";
 import { errorMiddleware } from "./middleware/errorMiddleware";
 import { authMiddleware } from "./middleware/authMiddleware";

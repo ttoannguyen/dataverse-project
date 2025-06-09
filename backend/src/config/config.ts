@@ -22,8 +22,11 @@ export default {
     "/auth/logout",
     "/users/register",
     "/dataverse/init",
+    "/dataverse/dataverse",
     "/dataverse/datasets",
     "/dataverse/count",
+    "/dataverse/getdata",
     "/dataverseItem/getDataset",
   ],
+  redis: process.env.REDIS_URL,
 };
