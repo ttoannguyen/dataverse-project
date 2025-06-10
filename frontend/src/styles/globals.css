@@ -150,6 +150,15 @@
   color: #23527c;
 }
 
+.text-hover-blue {
+  color: #337ab7;
+}
+
+.text-hover-blue:hover {
+  transition: 0.2s;
+  color: #23527c;
+}
+
 .text-color-main {
   color: #333;
 }
