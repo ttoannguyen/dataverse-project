@@ -75,6 +75,6 @@ export const fetchCounts = async () => {
     rootDataverse: root.data.data.childCount,
   };
 
-  await redis.set(cacheKey, JSON.stringify(result), "EX", 60);
+  await redis.set(cacheKey, JSON.stringify(result), "EX", 180);
   return result;
 };
