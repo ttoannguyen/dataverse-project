@@ -15,6 +15,9 @@ import {
   useSearchParams,
 } from "react-router-dom";
 import FileBlock from "@/components/FileBlock";
+import MetadataBlock from "@/components/MetadataBlock";
+import TermsBlock from "@/components/TermsBlock";
+import VersionBlock from "@/components/VersionBlock";
 
 // import "../../assets/icon/fontawesome/css/all.min.css";
 // import defaultFile from "../../assets/img/muti_file_icon.png";
@@ -40,6 +43,7 @@ const Dataset = () => {
   const [fullDescMode, setFullDescMode] = useState<boolean>(false);
   const [shortDescMode, setShortDescMode] = useState<boolean>(false);
   const descRef = useRef<HTMLDivElement>(null);
+  const [navbar, setNavbar] = useState<string>("Files");
 
   const toggleDropdown = () => setIsOpen(!isOpen);
 
@@ -66,10 +70,6 @@ const Dataset = () => {
 
     getDatasetItem();
   }, [persistentId]);
-
-  if (files) {
-    console.log(files);
-  }
 
   useEffect(() => {
     if (descRef.current) {
@@ -121,7 +121,7 @@ const Dataset = () => {
           to={"/"}
         >
           {/* {metadata.topic} */}
-          haha
+          Dataverse - CTU
         </Link>
         <p style={{ color: "#666666" }}>
           {"(" +
@@ -132,7 +132,7 @@ const Dataset = () => {
 
       <div className="">
         <Link to={"/"} className="text-hover-underline-blue">
-          CTU Dataverse
+          Dataverse - CTU
         </Link>{" "}
         &gt; <span className="text-hover-underline-blue">{"hihi"}</span>
       </div>
@@ -345,8 +345,58 @@ const Dataset = () => {
           </div>
         </div>
       </div>
+      <div className="border-b border-[#ccc] mb-4 flex">
+        <button
+          className={
+            navbar === "Files"
+              ? "mr-4 cursor-pointer border-b border-[#337ab7] text-[#337ab7]"
+              : "mr-4 cursor-pointer hover:border-b hover:border-[#337ab7] hover:text-[#337ab7] transition duration-300"
+          }
+          onClick={() => setNavbar("Files")}
+        >
+          Files
+        </button>
+        <button
+          className={
+            navbar === "Metadata"
+              ? "mr-4 cursor-pointer border-b border-[#337ab7] text-[#337ab7]"
+              : "mr-4 cursor-pointer hover:border-b hover:border-[#337ab7] hover:text-[#337ab7] transition duration-300"
+          }
+          onClick={() => setNavbar("Metadata")}
+        >
+          Metadata
+        </button>
+        <button
+          className={
+            navbar === "Terms"
+              ? "mr-4 cursor-pointer border-b border-[#337ab7] text-[#337ab7]"
+              : "mr-4 cursor-pointer hover:border-b hover:border-[#337ab7] hover:text-[#337ab7] transition duration-300"
+          }
+          onClick={() => setNavbar("Terms")}
+        >
+          Terms
+        </button>
+        <button
+          className={
+            navbar === "Versions"
+              ? "mr-4 cursor-pointer border-b border-[#337ab7] text-[#337ab7]"
+              : "mr-4 cursor-pointer hover:border-b hover:border-[#337ab7] hover:text-[#337ab7] transition duration-300"
+          }
+          onClick={() => setNavbar("Versions")}
+        >
+          Versions
+        </button>
+      </div>
+      {navbar === "Files" && <FileBlock metadata={metadata} files={files} />}
+      {navbar === "Metadata" && (
+        <MetadataBlock metadata={metadata} dataset={dataset} />
+      )}
 
-      <FileBlock metadata={metadata} files={files} />
+      {navbar === "Terms" && (
+        <TermsBlock license={dataset?.data.latestVersion.license} />
+      )}
+
+      {navbar === "Versions" && <VersionBlock />}
     </div>
   );
 };

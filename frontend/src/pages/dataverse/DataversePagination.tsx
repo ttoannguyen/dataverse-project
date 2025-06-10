@@ -10,7 +10,6 @@ const DataversePagination = ({
   perPage: number;
 }) => {
   const [, setParams] = useSearchParams();
-
   const totalPages = Math.ceil(total / perPage);
 
   const goTo = (newPage: number) => {
@@ -21,19 +20,71 @@ const DataversePagination = ({
     });
   };
 
+  const getVisiblePages = () => {
+    if (totalPages <= 5) {
+      return Array.from({ length: totalPages }, (_, i) => i + 1);
+    }
+
+    if (page <= 3) {
+      return [1, 2, 3, 4, 5];
+    }
+
+    if (page >= totalPages - 2) {
+      return [
+        totalPages - 4,
+        totalPages - 3,
+        totalPages - 2,
+        totalPages - 1,
+        totalPages,
+      ];
+    }
+
+    return [page - 2, page - 1, page, page + 1, page + 2];
+  };
+
   return (
-    <div className="flex gap-2 mt-4">
-      {Array.from({ length: totalPages }, (_, i) => (
+    <div className="flex gap-2 mt-4 justify-center items-center flex-wrap">
+      <button
+        onClick={() => goTo(1)}
+        disabled={page === 1}
+        className="px-2 py-1 border rounded disabled:opacity-50"
+      >
+        Đầu tiên
+      </button>
+      <button
+        onClick={() => goTo(Math.max(1, page - 1))}
+        disabled={page === 1}
+        className="px-2 py-1 border rounded disabled:opacity-50"
+      >
+        ← Trước
+      </button>
+
+      {getVisiblePages().map((p) => (
         <button
-          key={i + 1}
-          onClick={() => goTo(i + 1)}
+          key={p}
+          onClick={() => goTo(p)}
           className={`px-3 py-1 rounded ${
-            page === i + 1 ? "bg-blue-500 text-white" : "bg-gray-200"
+            page === p ? "bg-blue-500 text-white" : "bg-gray-200"
           }`}
         >
-          {i + 1}
+          {p}
         </button>
       ))}
+
+      <button
+        onClick={() => goTo(Math.min(totalPages, page + 1))}
+        disabled={page === totalPages}
+        className="px-2 py-1 border rounded disabled:opacity-50"
+      >
+        Sau →
+      </button>
+      <button
+        onClick={() => goTo(totalPages)}
+        disabled={page === totalPages}
+        className="px-2 py-1 border rounded disabled:opacity-50"
+      >
+        Cuối cùng
+      </button>
     </div>
   );
 };

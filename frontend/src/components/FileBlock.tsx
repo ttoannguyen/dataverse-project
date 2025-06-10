@@ -23,8 +23,13 @@ const FileBlock: React.FC<ChildProps> = ({ metadata, files }) => {
   let pageCount: number = 0;
 
   if (files) {
-    currentItems = files.slice(offset, offset + itemsPerPage);
-    pageCount = Math.ceil(files.length / itemsPerPage);
+    if (files.length > 10) {
+      currentItems = files.slice(offset, offset + itemsPerPage);
+      pageCount = Math.ceil(files.length / itemsPerPage);
+    } else {
+      currentItems = files;
+      pageCount = 1;
+    }
   }
 
   const handleCopy = (id: string) => {
@@ -36,9 +41,10 @@ const FileBlock: React.FC<ChildProps> = ({ metadata, files }) => {
     });
   };
 
+  console.log(currentPage + 1 === pageCount);
+
   return (
     <div>
-      <div className="border-b border-[#ccc]">Files</div>
       <div className="border  border-[#ccc]">
         <div className="flex justify-between p-4 bg-[#f5f5f5] items-center border-b  border-[#ccc]">
           <input
@@ -47,7 +53,27 @@ const FileBlock: React.FC<ChildProps> = ({ metadata, files }) => {
             name=""
             id=""
           />
-          <span className="w-[80%]">1 to 10 of 20 Files</span>
+
+          {files?.length < 11 ? (
+            <span className="w-[80%]">
+              1 to {files?.length} of {files?.length} Files
+            </span>
+          ) : (
+            <>
+              {currentPage + 1 === pageCount ? (
+                <span className="w-[80%]">
+                  {currentPage * itemsPerPage + 1} to {files?.length} of{" "}
+                  {files?.length} Files
+                </span>
+              ) : (
+                <span className="w-[80%]">
+                  {currentPage * itemsPerPage + 1} to{" "}
+                  {(currentPage + 1) * itemsPerPage} of {files?.length} Files
+                </span>
+              )}
+            </>
+          )}
+
           <button
             className="flex cursor-pointer mr-2 bg-gradient-to-b from-white to-[#e0e0e0] bg-repeat-x border border-[#ccc] px-[10px] py-[5px] hover:text-[#333] hover:bg-[#e6e6e6] hover:border-[#adadad] rounded-[5px]"
             style={{ textShadow: "0 1px 0 #fff" }}
@@ -124,11 +150,13 @@ const FileBlock: React.FC<ChildProps> = ({ metadata, files }) => {
           ))}
       </div>
 
-      <DatasetFilePagination
-        pageCount={pageCount}
-        currentPage={currentPage}
-        setCurrentPage={setCurrentPage}
-      />
+      {files?.length > 10 && (
+        <DatasetFilePagination
+          pageCount={pageCount}
+          currentPage={currentPage}
+          setCurrentPage={setCurrentPage}
+        />
+      )}
     </div>
   );
 };

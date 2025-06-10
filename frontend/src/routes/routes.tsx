@@ -1,4 +1,4 @@
-import type { RouteObject } from "react-router-dom";
+import { createBrowserRouter } from "react-router-dom";
 import Home from "@/pages/Home";
 import Login from "@/pages/Login";
 import Layout from "@/pages/Layout";
@@ -11,8 +11,9 @@ import Dataset from "@/pages/Dataset";
 import AdminDashboard from "@/pages/admin/AdminDashboard";
 import AdminLayout from "@/pages/admin/Layout";
 import ProtectedRoute from "@/routes/ProtectedRoute";
+// import { getCountData } from "@/services/DataverseApi";
 
-export const routes: RouteObject[] = [
+export const routes = createBrowserRouter([
   {
     path: "/",
     element: <Layout />,
@@ -22,7 +23,14 @@ export const routes: RouteObject[] = [
       { path: "about", element: <About /> },
       { path: "topics", element: <Topic /> },
       { path: "blog", element: <Blog /> },
-      { path: "dataverse", element: <Dataverse /> },
+      {
+        path: "dataverse",
+        element: <Dataverse />,
+        // loader: async () => {
+        //   const countData = await getCountData();
+        //   return { countData };
+        // },
+      },
       { path: "dataset", element: <Dataset /> },
     ],
   },
@@ -37,4 +45,4 @@ export const routes: RouteObject[] = [
       },
     ],
   },
-];
+]);

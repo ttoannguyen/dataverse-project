@@ -14,13 +14,11 @@ services:
       - pgdata:/var/lib/postgresql/data
     restart: unless-stopped
 
-  pgadmin:
-    image: dpage/pgadmin4
-    container_name: pgadmin
-    environment:
-      PGADMIN_DEFAULT_EMAIL: admin@example.com
-      PGADMIN_DEFAULT_PASSWORD: admin
+  redis:
+    image: redis:7.2
+    container_name: redis-server
     ports:
+<<<<<<< HEAD
       - "8080:80"
     depends_on:
       - db
@@ -32,6 +30,9 @@ services:
     ports:
       - "6379:6379"
     restart: unless-stopped
+=======
+      - "6379:6379"
+>>>>>>> 05c0420eb9cf41b0f1e51687f8c72362bd771130
 
 volumes:
   pgdata:
