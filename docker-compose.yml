@@ -1,4 +1,5 @@
-# docker-compose
+version: "3.8"
+
 services:
   backend:
     build:
@@ -12,8 +13,11 @@ services:
       - "4000:4000"
     depends_on:
       - redis
+      - postgres_custom
     networks:
       - kms-network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   frontend:
     build:
@@ -27,3 +31,33 @@ services:
       - "80:80"
     networks:
       - kms-network
+
+  redis:
+    image: redis:7
+    container_name: kms_redis
+    ports:
+      - "6379:6379"
+    networks:
+      - kms-network
+
+  postgres_custom:
+    image: postgres:17
+    container_name: kms_postgres
+    restart: always
+    environment:
+      POSTGRES_DB: kms
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin
+    ports:
+      - "10000:5432" 
+    volumes:
+      - pgdata_custom:/var/lib/postgresql/kms
+    networks:
+      - kms-network
+
+volumes:
+  pgdata_custom:
+
+networks:
+  kms-network:
+    driver: bridge
