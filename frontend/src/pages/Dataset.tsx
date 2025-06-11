@@ -1,10 +1,12 @@
+import React, { useState, useEffect, useRef } from "react";
 import datasetApi from "@/services/DatasetApi";
+import axios from "axios";
 import type {
+  DatasetFile,
   DatasetInterface,
   MetadataBlocks,
 } from "@/types/datasetInterface";
-import axios from "axios";
-import React, { useState, useEffect } from "react";
+import defaultFile from "../assets/img/muti_file_icon.png";
 
 import {
   Link,
@@ -12,6 +14,10 @@ import {
   useNavigate,
   useSearchParams,
 } from "react-router-dom";
+import FileBlock from "@/components/FileBlock";
+import MetadataBlock from "@/components/MetadataBlock";
+import TermsBlock from "@/components/TermsBlock";
+import VersionBlock from "@/components/VersionBlock";
 
 // import "../../assets/icon/fontawesome/css/all.min.css";
 // import defaultFile from "../../assets/img/muti_file_icon.png";
@@ -25,52 +31,56 @@ const Dataset = () => {
 
   const [dataset, setDataset] = useState<DatasetInterface | null>(null);
   const [metadata, setMetadata] = useState<MetadataBlocks | null>(null);
+  const [files, setFiles] = useState<DatasetFile[] | null>(null);
+
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
 
   const pathParts = location.pathname.split("/");
   const datasetId = pathParts[pathParts.length - 1];
   const [isOpen, setIsOpen] = useState(false);
   const [accessIsOpen, setAccessIsOpen] = useState(false);
+  const [fullDescMode, setFullDescMode] = useState<boolean>(false);
+  const [shortDescMode, setShortDescMode] = useState<boolean>(false);
+  const descRef = useRef<HTMLDivElement>(null);
+  const [navbar, setNavbar] = useState<string>("Files");
 
   const toggleDropdown = () => setIsOpen(!isOpen);
 
   useEffect(() => {
     const getDatasetItem = async (): Promise<void> => {
-      // setLoading(true);
-      // if (!persistentId) return;
-      // const temp: DatasetInterface | null = await datasetApi.getDataset(
-      //   persistentId,
-      //   setError
-      // );
+      setLoading(true);
+      if (!persistentId) return;
 
-      // if (temp) {
-      //   setDataset(temp);
-      //   setMetadata(temp.data.latestVersion.metadataBlocks);
-      // }
-      // setLoading(false);
+      const tempDataset: DatasetInterface | null = await datasetApi.getDataset(
+        persistentId,
+        setError
+      );
 
-      await axios
-        .get(
-          `http://localhost:3000/api/v1/dataverseItem/getDataset?global_id=${persistentId}`
-        )
-        .then((res) => {
-          setDataset(res.data.data);
-          setMetadata(res.data.data.data.latestVersion.metadataBlocks);
-          setLoading(false);
-        })
-        .catch((error) => {
-          console.log(error);
-          // setError(true);
-        });
+      if (tempDataset) {
+        console.log(tempDataset);
+
+        setDataset(tempDataset);
+        setMetadata(tempDataset.data.latestVersion.metadataBlocks);
+        setFiles(tempDataset.data.latestVersion.files);
+      }
+
+      setLoading(false);
     };
 
     getDatasetItem();
   }, [persistentId]);
 
-  if (metadata) {
-    console.log(metadata.citation.fields[0].value);
-  }
+  useEffect(() => {
+    if (descRef.current) {
+      const descHeight = descRef.current.scrollHeight;
+
+      if (descHeight < 250) {
+        setShortDescMode(true);
+        setFullDescMode(true);
+      }
+    }
+  }, [metadata]);
 
   if (loading) {
     return (
@@ -111,41 +121,57 @@ const Dataset = () => {
           to={"/"}
         >
           {/* {metadata.topic} */}
+          Dataverse - CTU
         </Link>
-        {/* <p style={{ color: "#666666" }}>{"(" + metadata.organization + ")"}</p> */}
+        <p style={{ color: "#666666" }}>
+          {"(" +
+            metadata?.citation.fields[1].value[0].authorAffiliation.value +
+            ")"}
+        </p>
       </div>
 
       <div className="">
         <Link to={"/"} className="text-hover-underline-blue">
-          CTU Dataverse
+          Dataverse - CTU
         </Link>{" "}
-        {/* &gt; <span className="text-hover-underline-blue">{metadata.topic}</span> */}
+        &gt; <span className="text-hover-underline-blue">{"hihi"}</span>
       </div>
 
       {metadata && (
         <h1 className="text-[36px] leading-[1.1] font-bold mt-4 mb-0">
-          {metadata?.citation?.fields[0]?.value}
+          {metadata?.citation.fields[0].value}
         </h1>
       )}
 
-      {/* <span className="label-default">{metadata.license}</span> */}
+      <span className="label-default">
+        {"Version " + dataset?.data.latestVersion.versionNumber}
+      </span>
       <div className="grid grid-cols-[75%_25%] gap-4">
         <div className=" pt-4 pm-4 text-sm">
           <div className="p-4 custom-light-blue grid grid-cols-[15%_85%] ">
             <div className="w-full text-xl ">
-              {/* <img src={defaultFile} alt="" /> */}
+              <img src={defaultFile} alt="" />
             </div>
             <div className="pl-4">
               <div>
-                Hsu, Jennifer, 2025, "Being Chinese in Australia 2021 release",
-                <Link
-                  to={"https://doi.org/10.26193/ZPBVNW"}
+                {metadata?.citation.fields[1].value[0].authorName.value +
+                  ", " +
+                  dataset?.data.latestVersion.releaseTime.split("-")[0] +
+                  ', "' +
+                  metadata?.citation.fields[0].value +
+                  '", '}
+                <a
+                  href={dataset?.data.persistentUrl}
                   className="text-hover-link-blue"
+                  target="_blank"
                 >
                   {" "}
-                  https://doi.org/10.26193/ZPBVNW
-                </Link>
-                , ADA Dataverse, V1
+                  {dataset?.data.persistentUrl}
+                </a>
+                {", " +
+                  dataset?.data.publisher +
+                  ", V" +
+                  dataset?.data.latestVersion.versionNumber}
               </div>
 
               <div className="grid grid-cols-[30%_70%] ">
@@ -198,24 +224,77 @@ const Dataset = () => {
           </div>
 
           <div className="mt-8 pl-4 pr-4">
-            <div className=" grid grid-cols-[15%_85%] gap-4">
+            <div className=" grid grid-cols-[30%_70%] gap-4">
               <div className="font-bold">Description</div>
-              {/* <div>{metadata.description}</div> */}
+              <div
+                ref={descRef}
+                className={
+                  fullDescMode
+                    ? "text-justify relative"
+                    : "text-justify max-h-[250px] overflow-hidden relative"
+                }
+              >
+                {metadata?.citation.fields[3].value[0].dsDescriptionValue.value}
+
+                {!shortDescMode && (
+                  <>
+                    {fullDescMode ? (
+                      <div className="text-center top-[100%] w-full absolute bottom-0">
+                        <button
+                          className="text-hover-underline-blue cursor-pointer"
+                          onClick={() => setFullDescMode(false)}
+                        >
+                          Collapse Description [-]
+                        </button>
+                      </div>
+                    ) : (
+                      <div
+                        className="text-center pt-[250px] w-full absolute bottom-0"
+                        style={{
+                          background:
+                            "linear-gradient(180deg, hsla(0, 0%, 100%, 0), #fff 80%)",
+                        }}
+                      >
+                        <button
+                          className="text-hover-underline-blue cursor-pointer"
+                          onClick={() => setFullDescMode(true)}
+                        >
+                          Read full Description [+]
+                        </button>
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
             </div>
 
-            <div className=" mt-4 grid grid-cols-[15%_85%] gap-4">
+            <div className=" mt-4 grid grid-cols-[30%_70%] gap-4">
               <div className="font-bold">Subject</div>
-              {/* <div>{type}</div> */}
+              <div>
+                {metadata && metadata.citation.fields[4].value.join("; ")}
+              </div>
             </div>
 
-            <div className="mt-4 grid grid-cols-[15%_85%] gap-4">
+            {/* <div className="mt-4 grid grid-cols-[30%_70%] gap-4">
               <div className="font-bold">Related Publication </div>
               <div>haha</div>
-            </div>
+            </div> */}
 
-            <div className="mt-4 grid grid-cols-[15%_85%] gap-4">
+            <div className="mt-4 grid grid-cols-[30%_70%] gap-4">
               <div className="font-bold">License/Data Use Agreement</div>
-              {/* <div>{metadata.license}</div> */}
+              <div className="flex">
+                <img
+                  src={dataset?.data.latestVersion.license.iconUri}
+                  alt=""
+                  className="mr-4"
+                />
+                <a
+                  href={dataset?.data.latestVersion.license.uri}
+                  className="text-hover-underline-blue underline"
+                >
+                  {dataset?.data.latestVersion.license.name}
+                </a>
+              </div>
             </div>
           </div>
         </div>
@@ -266,6 +345,58 @@ const Dataset = () => {
           </div>
         </div>
       </div>
+      <div className="border-b border-[#ccc] mb-4 flex">
+        <button
+          className={
+            navbar === "Files"
+              ? "mr-4 cursor-pointer border-b border-[#337ab7] text-[#337ab7]"
+              : "mr-4 cursor-pointer hover:border-b hover:border-[#337ab7] hover:text-[#337ab7] transition duration-300"
+          }
+          onClick={() => setNavbar("Files")}
+        >
+          Files
+        </button>
+        <button
+          className={
+            navbar === "Metadata"
+              ? "mr-4 cursor-pointer border-b border-[#337ab7] text-[#337ab7]"
+              : "mr-4 cursor-pointer hover:border-b hover:border-[#337ab7] hover:text-[#337ab7] transition duration-300"
+          }
+          onClick={() => setNavbar("Metadata")}
+        >
+          Metadata
+        </button>
+        <button
+          className={
+            navbar === "Terms"
+              ? "mr-4 cursor-pointer border-b border-[#337ab7] text-[#337ab7]"
+              : "mr-4 cursor-pointer hover:border-b hover:border-[#337ab7] hover:text-[#337ab7] transition duration-300"
+          }
+          onClick={() => setNavbar("Terms")}
+        >
+          Terms
+        </button>
+        <button
+          className={
+            navbar === "Versions"
+              ? "mr-4 cursor-pointer border-b border-[#337ab7] text-[#337ab7]"
+              : "mr-4 cursor-pointer hover:border-b hover:border-[#337ab7] hover:text-[#337ab7] transition duration-300"
+          }
+          onClick={() => setNavbar("Versions")}
+        >
+          Versions
+        </button>
+      </div>
+      {navbar === "Files" && <FileBlock metadata={metadata} files={files} />}
+      {navbar === "Metadata" && (
+        <MetadataBlock metadata={metadata} dataset={dataset} />
+      )}
+
+      {navbar === "Terms" && (
+        <TermsBlock license={dataset?.data.latestVersion.license} />
+      )}
+
+      {navbar === "Versions" && <VersionBlock />}
     </div>
   );
 };
