@@ -1,7 +1,5 @@
-// src/services/dataverse/dataverse.service.ts
-
 import axios from "axios";
-import redis from "../../config/redis"; // nơi bạn khởi tạo Redis client
+import redis from "../../config/redis";
 import { DataverseSearchResponse } from "../../types/dataverse";
 
 const BASE = process.env.DATAVERSE_API_BASE || "https://demo.dataverse.org/api";
@@ -36,7 +34,7 @@ export const fetchData = async (
     console.log("service", `${BASE}/search?${searchParams.toString()}`);
     if (response.status === 200 && response.data?.data?.items?.length > 0) {
       console.log("store getdata key", cacheKey);
-      await redis.set(cacheKey, JSON.stringify(response.data), "EX", 300); // cache 5 phút
+      await redis.set(cacheKey, JSON.stringify(response.data), "EX", 300);
     }
 
     return response.data;

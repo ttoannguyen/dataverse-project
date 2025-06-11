@@ -3,7 +3,7 @@ export interface DataverseItem {
   identifier: string;
   global_id: string;
   description: string;
-  // Add more fields as needed
+  
 }
 
 export interface DataverseSearchResponse {

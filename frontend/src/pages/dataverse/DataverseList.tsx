@@ -21,7 +21,7 @@ const DataverseList = ({
       )}
 
       <ul
-        className={`space-y-6 transition-opacity duration-300 ${
+        className={`space-y-1 transition-opacity duration-300 ${
           loading ? "opacity-50 pointer-events-none" : "opacity-100"
         }`}
       >
@@ -31,7 +31,7 @@ const DataverseList = ({
               return (
                 <li
                   key={item.global_id}
-                  className="border rounded-lg p-4 shadow-sm bg-white hover:shadow-md transition-shadow"
+                  className="p-4 bg-white border shadow-xs"
                 >
                   <h3 className="text-xl font-semibold mb-2 text-gray-800">
                     Dataset: {item.name}
@@ -57,7 +57,7 @@ const DataverseList = ({
               return (
                 <li
                   key={item.file_id}
-                  className="border rounded-lg p-4 shadow-sm bg-white hover:shadow-md transition-shadow"
+                  className="p-4 bg-white border shadow-xs"
                 >
                   <h3 className="text-xl font-semibold mb-2 text-gray-800">
                     File: {item.name}

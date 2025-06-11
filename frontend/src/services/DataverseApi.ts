@@ -12,7 +12,7 @@ export const getDataverses = async ({
   perPage,
   type,
 }: {
-  q: string;
+  q?: string;
   sort: string;
   order: string;
   page: number;

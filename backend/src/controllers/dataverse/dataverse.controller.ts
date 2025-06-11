@@ -1,14 +1,3 @@
-/*
- * File: dataverse.controller.ts
- * Path: \src\controllers\dataverse
- * Project: kms-backend
- * Created Date: Mon Jun 2025
- * Author: ToanNguyen (Email: nttoan189@gmail.com, GitHub: ttoannguyen)
- * -----
- * Last Modified: Mon Jun 09 2025
- * Modified By: ToanNguyen
- * -----
- */
 import { Request, Response } from "express";
 import * as dataverseService from "../../services/dataverse/dataverse.service";
 
@@ -32,7 +21,7 @@ export const getCounts = async (_req: Request, res: Response) => {
 
 export const getData = async (req: Request, res: Response) => {
   const page = parseInt(req.query.page as string) || 1;
-  const perPage = parseInt(req.query.per_page as string) || 20;
+  const perPage = parseInt(req.query.per_page as string) || 6;
   const type = req.query.type as string | undefined;
   const q = (req.query.q as string) || "*";
   const sort = req.query.sort as string | undefined;

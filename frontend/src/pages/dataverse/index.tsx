@@ -6,6 +6,7 @@ import { getCountData, getDataverses } from "@/services/DataverseApi";
 import { type DataverseItem } from "./types";
 import type { CountData } from "@/types/Dataverse/dataverse";
 import DataverseSideBar from "./DataverseSideBar";
+import Search from "./Search";
 
 const DataversePage = () => {
   const [params] = useSearchParams();
@@ -13,7 +14,7 @@ const DataversePage = () => {
   const sort = params.get("sort") ?? "date";
   const order = params.get("order") ?? "desc";
   const page = parseInt(params.get("page") ?? "1");
-  const perPage = parseInt(params.get("per_page") ?? "7");
+  const perPage = parseInt(params.get("per_page") ?? "6");
   const type = params.get("type") ?? undefined;
 
   const [items, setItems] = useState<DataverseItem[]>([]);
@@ -37,7 +38,7 @@ const DataversePage = () => {
   useEffect(() => {
     setLoading(true);
     getDataverses({
-      q,
+      q: q || undefined,
       sort,
       order,
       page,
@@ -64,18 +65,23 @@ const DataversePage = () => {
   };
 
   return (
-    <div className="flex gap-4">
+    <div className="flex gap-4 border pt-2">
       <DataverseSideBar
         data={numberCountSideBar}
         selectedTypes={selectedTypes}
         onTypeChange={handleTypeChange}
       />
 
-      <div className="flex-1">
-        {/* <DataverseList items={items} /> */}
+      <div className="flex-1 w-full">
+       <div className="mb-4 w-full">
+          <Search onSearch={(query) => console.log("Search query:", query)} />
+        </div>
+        
         <DataverseList items={items} loading={loading} />
 
-        <DataversePagination page={page} total={total} perPage={perPage} />
+        {!loading && total > 0 && (
+          <DataversePagination page={page} total={total} perPage={perPage} />
+        )}
       </div>
     </div>
   );
