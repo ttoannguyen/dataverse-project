@@ -29,30 +29,30 @@ const MetadataBlock: React.FC<ChildProps> = ({ metadata, dataset }) => {
         <div className="mb-4 text-[14px] grid grid-cols-[30%_70%] gap-4">
           <div className="font-bold">Title </div>
           <div className="text-justify ">
-            {metadata?.citation.fields[0].value}
+            {/* {metadata?.citation.fields[0].value} */}
           </div>
         </div>
 
         <div className="mb-4 text-[14px] grid grid-cols-[30%_70%] gap-4">
           <div className="font-bold">Author </div>
           <div className="text-justify ">
-            {metadata?.citation.fields[1].value[0].authorName.value +
+            {/* {metadata?.citation.fields[1].value[0].authorName.value +
               " (" +
               metadata?.citation.fields[1].value[0].authorAffiliation.value +
-              ")"}
+              ")"} */}
           </div>
         </div>
 
         <div className="mb-4 text-[14px] grid grid-cols-[30%_70%] gap-4">
           <div className="font-bold">Description</div>
           <div className="text-justify ">
-            {metadata?.citation.fields[3].value[0].dsDescriptionValue.value}
+            {/* {metadata?.citation.fields[3].value[0].dsDescriptionValue.value} */}
           </div>
         </div>
 
         <div className="mb-4 text-[14px] grid grid-cols-[30%_70%] gap-4">
           <div className="font-bold">Subject</div>
-          <div>{metadata && metadata.citation.fields[4].value.join("; ")}</div>
+          {/* <div>{metadata && metadata.citation.fields[4].value.join("; ")}</div> */}
         </div>
       </div>
     </div>

@@ -125,7 +125,7 @@ const Dataset = () => {
         </Link>
         <p style={{ color: "#666666" }}>
           {"(" +
-            metadata?.citation.fields[1].value[0].authorAffiliation.value +
+            // metadata?.citation.fields[1].value[0].authorAffiliation.value +
             ")"}
         </p>
       </div>
@@ -139,7 +139,7 @@ const Dataset = () => {
 
       {metadata && (
         <h1 className="text-[36px] leading-[1.1] font-bold mt-4 mb-0">
-          {metadata?.citation.fields[0].value}
+          {/* {metadata?.citation.fields[0].value} */}
         </h1>
       )}
 
@@ -154,12 +154,12 @@ const Dataset = () => {
             </div>
             <div className="pl-4">
               <div>
-                {metadata?.citation.fields[1].value[0].authorName.value +
+                {/* {metadata?.citation.fields[1].value[0].authorName.value +
                   ", " +
                   dataset?.data.latestVersion.releaseTime.split("-")[0] +
                   ', "' +
                   metadata?.citation.fields[0].value +
-                  '", '}
+                  '", '} */}
                 <a
                   href={dataset?.data.persistentUrl}
                   className="text-hover-link-blue"
@@ -234,7 +234,7 @@ const Dataset = () => {
                     : "text-justify max-h-[250px] overflow-hidden relative"
                 }
               >
-                {metadata?.citation.fields[3].value[0].dsDescriptionValue.value}
+                {/* {metadata?.citation.fields[3].value[0].dsDescriptionValue.value} */}
 
                 {!shortDescMode && (
                   <>
@@ -271,7 +271,7 @@ const Dataset = () => {
             <div className=" mt-4 grid grid-cols-[30%_70%] gap-4">
               <div className="font-bold">Subject</div>
               <div>
-                {metadata && metadata.citation.fields[4].value.join("; ")}
+                {/* {metadata && metadata.citation.fields[4].value.join("; ")} */}
               </div>
             </div>
 
