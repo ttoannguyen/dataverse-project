@@ -1,0 +1,39 @@
+.pagination {
+  display: flex;
+  margin-top: 30px;
+  align-items: center;
+  justify-content: center;
+}
+.pagination .paginationPage {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.pagination .paginationPage .active {
+  color: white;
+  background-color: #337ab7;
+  border: 1px solid #23527c;
+}
+.pagination .paginationPage li {
+  cursor: pointer;
+  background-color: white;
+  color: #337ab7;
+
+  border-radius: 5px;
+  margin: 0 5px;
+  border: 1px solid #337ab7;
+}
+.pagination .paginationPage li a {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 40px;
+  height: 40px;
+}
+.currentPage {
+  margin-top: 10px;
+  font-size: 20px;
+  color: #337ab7;
+  border: 1px solid #337ab7;
+}
