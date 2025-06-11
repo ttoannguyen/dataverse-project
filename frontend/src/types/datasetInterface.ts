@@ -2,7 +2,6 @@ export interface DatasetInterface {
   status: string;
   data: DatasetData;
 }
-
 export interface DatasetData {
   id: number;
   identifier: string;
@@ -38,7 +37,6 @@ export interface DatasetVersion {
   metadataBlocks: MetadataBlocks;
   files: DatasetFile[];
 }
-
 export interface License {
   name: string;
   uri: string;
@@ -47,42 +45,6 @@ export interface License {
   rightsIdentifierScheme: string;
   schemeUri: string;
   languageCode: string;
-}
-
-export interface MetadataBlocks {
-  citation: CitationBlock;
-}
-
-export interface CitationBlock {
-  displayName: string;
-  name: string;
-  fields: MetadataField[];
-}
-
-export type MetadataField =
-  | PrimitiveField
-  | CompoundField
-  | ControlledVocabularyField;
-
-export interface PrimitiveField {
-  typeName: string;
-  multiple: boolean;
-  typeClass: "primitive";
-  value: string;
-}
-
-export interface CompoundField {
-  typeName: string;
-  multiple: boolean;
-  typeClass: "compound";
-  value: { [key: string]: PrimitiveField }[]; // For compound fields like author, datasetContact...
-}
-
-export interface ControlledVocabularyField {
-  typeName: string;
-  multiple: boolean;
-  typeClass: "controlledVocabulary";
-  value: string[];
 }
 
 export interface DatasetFile {
@@ -105,12 +67,61 @@ export interface DataFile {
   md5: string;
   checksum: Checksum;
   tabularData: boolean;
-  creationDate: string; // ISO format: "YYYY-MM-DD"
-  publicationDate: string; // ISO format
+  creationDate: string;
+  publicationDate: string;
   fileAccessRequest: boolean;
+  isPartOf?: any; // optional: for breadcrumb
 }
 
 export interface Checksum {
-  type: string; // e.g., "MD5"
-  value: string; // checksum value
+  type: string;
+  value: string;
+}
+export interface MetadataBlocks {
+  citation: CitationBlock;
+}
+
+export interface CitationBlock {
+  displayName: string;
+  name: string;
+  fields: MetadataField[];
+}
+
+export type MetadataField =
+  | PrimitiveField
+  | ControlledVocabularyField
+  | CompoundField<any>;
+export interface PrimitiveField {
+  typeName: string;
+  multiple: boolean;
+  typeClass: "primitive";
+  value: string;
+}
+
+export interface ControlledVocabularyField {
+  typeName: string;
+  multiple: boolean;
+  typeClass: "controlledVocabulary";
+  value: string[];
+}
+
+export interface CompoundField<T> {
+  typeName: string;
+  multiple: boolean;
+  typeClass: "compound";
+  value: T[];
+}
+export interface Author {
+  authorName: PrimitiveField;
+  authorAffiliation?: PrimitiveField;
+}
+
+export interface DsDescription {
+  dsDescriptionValue: PrimitiveField;
+}
+
+export interface DatasetContact {
+  datasetContactName: PrimitiveField;
+  datasetContactAffiliation?: PrimitiveField;
+  datasetContactEmail?: PrimitiveField;
 }

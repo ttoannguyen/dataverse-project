@@ -27,6 +27,7 @@ export default {
     "/dataverse/count",
     "/dataverse/getdata",
     "/dataverseItem/getDataset",
+    "/file/getFile",
   ],
   redis: process.env.REDIS_URL,
 };

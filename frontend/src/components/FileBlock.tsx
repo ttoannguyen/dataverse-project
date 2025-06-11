@@ -5,6 +5,7 @@ import fileImg from "../assets/img/muti_file_icon.png";
 import DatasetFilePagination from "./pagination/datasetFilePagination";
 import formatBytes from "@/helpers/format/formatSizeData";
 import formatDate from "@/helpers/format/formatDate";
+import { Link } from "react-router-dom";
 
 interface ChildProps {
   metadata: MetadataBlocks | null;
@@ -107,9 +108,12 @@ const FileBlock: React.FC<ChildProps> = ({ metadata, files }) => {
                     className="w-[62px] h-[62px] mr-4"
                   />
                   <div className="text-[14px]">
-                    <p className="text-hover-underline-blue cursor-pointer">
+                    <Link
+                      to={`/file?fileId=${currentItem.dataFile.id}`}
+                      className="text-hover-underline-blue cursor-pointer"
+                    >
                       {currentItem.label}
-                    </p>
+                    </Link>
                     <p className="text-[85%] color-[#707070]">
                       {currentItem.dataFile.friendlyType} -{" "}
                       {formatBytes(currentItem.dataFile.filesize)}

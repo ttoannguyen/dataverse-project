@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import datasetApi from "@/services/DatasetApi";
 import axios from "axios";
 import type {
+  DataFile,
   DatasetFile,
   DatasetInterface,
   MetadataBlocks,
@@ -14,31 +15,22 @@ import {
   useNavigate,
   useSearchParams,
 } from "react-router-dom";
-import FileBlock from "@/components/FileBlock";
-import MetadataBlock from "@/components/MetadataBlock";
-import TermsBlock from "@/components/TermsBlock";
-import VersionBlock from "@/components/VersionBlock";
-import {
-  getAuthors,
-  getCitation,
-  getDescription,
-  getSubjects,
-  getTitle,
-} from "@/helpers/metadataDataset/getMetadata";
-
+import fileApi from "@/services/fileApi";
+import type { DataFileResponse } from "@/types/file";
 // import "../../assets/icon/fontawesome/css/all.min.css";
 // import defaultFile from "../../assets/img/muti_file_icon.png";
 // import "../../global.css";
 
-const Dataset = () => {
+const FIle = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const persistentId = searchParams.get("persistentId");
+  const fileId = searchParams.get("fileId");
   const location = useLocation();
   const navigate = useNavigate();
 
   const [dataset, setDataset] = useState<DatasetInterface | null>(null);
   const [metadata, setMetadata] = useState<MetadataBlocks | null>(null);
-  const [files, setFiles] = useState<DatasetFile[] | null>(null);
+  const [file, setFile] = useState<DataFileResponse | null>(null);
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -57,26 +49,31 @@ const Dataset = () => {
   useEffect(() => {
     const getDatasetItem = async (): Promise<void> => {
       setLoading(true);
-      if (!persistentId) return;
+      // if (!persistentId) return;
+      if (fileId) {
+        const tempFile: DataFileResponse | null = await fileApi.getFile(
+          fileId,
+          setError
+        );
 
-      const tempDataset: DatasetInterface | null = await datasetApi.getDataset(
-        persistentId,
-        setError
-      );
+        if (tempFile) {
+          console.log(tempFile);
+          setFile(tempFile);
+          const tempDataset: DatasetInterface | null =
+            await datasetApi.getDataset(
+              tempFile.data.dataFile.isPartOf.persistentIdentifier,
+              setError
+            );
 
-      if (tempDataset) {
-        console.log(tempDataset);
-
-        setDataset(tempDataset);
-        setMetadata(tempDataset.data.latestVersion.metadataBlocks);
-        setFiles(tempDataset.data.latestVersion.files);
+          console.log(tempDataset);
+        }
       }
 
       setLoading(false);
     };
 
     getDatasetItem();
-  }, [persistentId]);
+  }, [persistentId, fileId]);
 
   useEffect(() => {
     if (descRef.current) {
@@ -92,7 +89,7 @@ const Dataset = () => {
   if (loading) {
     return (
       <div className="p-4">
-        <p className="text-gray-600">Loading dataset...</p>
+        <p className="text-gray-600">Loading file...</p>
       </div>
     );
   }
@@ -127,11 +124,12 @@ const Dataset = () => {
           className="block text-hover-underline-blue  mt-[5px] text-[18px] mb-[10px]"
           to={"/"}
         >
-          {/* {metadata.topic} */}
-          Dataverse - CTU
+          {file?.data.dataFile.isPartOf.displayName}
         </Link>
         <p style={{ color: "#666666" }}>
-          {"(" + metadata?.citation.fields[1].value[0].authorName.value + ")"}
+          {"(" +
+            // metadata?.citation.fields[1].value[0].authorAffiliation.value +
+            ")"}
         </p>
       </div>
 
@@ -142,10 +140,13 @@ const Dataset = () => {
         &gt; <span className="text-hover-underline-blue">{"hihi"}</span>
       </div>
 
-      {metadata && (
-        <h1 className="text-[36px] leading-[1.1] font-bold mt-4 mb-0">
-          {metadata?.citation.fields[0].value}
-        </h1>
+      {file && (
+        <div>
+          <h1 className="text-[36px] leading-[1.1] font-bold mt-4 mb-0">
+            {file?.data.label}
+          </h1>
+          <p>This file is part of</p>
+        </div>
       )}
 
       <span className="label-default">
@@ -159,10 +160,12 @@ const Dataset = () => {
             </div>
             <div className="pl-4">
               <div>
-                {getCitation(
-                  metadata?.citation.fields,
-                  dataset?.data.latestVersion.releaseTime.split("-")[0]
-                )}
+                {/* {metadata?.citation.fields[1].value[0].authorName.value +
+                  ", " +
+                  dataset?.data.latestVersion.releaseTime.split("-")[0] +
+                  ', "' +
+                  metadata?.citation.fields[0].value +
+                  '", '} */}
                 <a
                   href={dataset?.data.persistentUrl}
                   className="text-hover-link-blue"
@@ -237,7 +240,7 @@ const Dataset = () => {
                     : "text-justify max-h-[250px] overflow-hidden relative"
                 }
               >
-                {getDescription(metadata?.citation.fields)}
+                {/* {metadata?.citation.fields[3].value[0].dsDescriptionValue.value} */}
 
                 {!shortDescMode && (
                   <>
@@ -273,7 +276,9 @@ const Dataset = () => {
 
             <div className=" mt-4 grid grid-cols-[30%_70%] gap-4">
               <div className="font-bold">Subject</div>
-              <div>{metadata && getSubjects(metadata.citation.fields)}</div>
+              <div>
+                {/* {metadata && metadata.citation.fields[4].value.join("; ")} */}
+              </div>
             </div>
 
             {/* <div className="mt-4 grid grid-cols-[30%_70%] gap-4">
@@ -388,18 +393,8 @@ const Dataset = () => {
           Versions
         </button>
       </div>
-      {navbar === "Files" && <FileBlock metadata={metadata} files={files} />}
-      {navbar === "Metadata" && (
-        <MetadataBlock metadata={metadata} dataset={dataset} />
-      )}
-
-      {navbar === "Terms" && (
-        <TermsBlock license={dataset?.data.latestVersion.license} />
-      )}
-
-      {navbar === "Versions" && <VersionBlock />}
     </div>
   );
 };
 
-export default Dataset;
+export default FIle;
