@@ -1,17 +1,18 @@
-# Build phase
-FROM node:20 AS builder
+# 1. Base image
+FROM node:20-alpine
+
+# 2. Set working dir
 WORKDIR /app
+
+# 3. Copy files
 COPY package*.json ./
 RUN npm install
+
 COPY . .
+
+# 4. Build TS
 RUN npm run build
 
-# Run phase
-FROM node:20
-WORKDIR /app
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/package*.json ./
-COPY .env .env
-RUN npm install --production
+# 5. Expose port and start
 EXPOSE 4000
 CMD ["node", "dist/index.js"]
