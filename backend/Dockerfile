@@ -9,7 +9,7 @@ COPY package*.json ./
 RUN npm install
 
 COPY . .
-
+COPY .env.production .env
 # 4. Build TS
 RUN npm run build
 

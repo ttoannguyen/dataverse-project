@@ -1,17 +1,28 @@
-version: "3"
 services:
-  frontend:
-    build:
-      context: .
-      dockerfile: Dockerfile.frontend
-    ports:
-      - "3001:80"
-
   backend:
     build:
-      context: .
-      dockerfile: Dockerfile.backend
+      context: ./backend
+    container_name: kms_backend
+    env_file:
+      - ./backend/.env.production
+    volumes:
+      - ./backend/.env.production:/app/.env.production
     ports:
-      - "3000:3000"
-    environment:
-      - DATAVERSE_URL=http://172.18.54.49:8080
+      - "4000:4000"
+    depends_on:
+      - redis
+    networks:
+      - kms-network
+
+  frontend:
+    build:
+      context: ./frontend
+    container_name: kms_frontend
+    env_file:
+      - ./frontend/.env.production
+    volumes:
+      - ./frontend/.env.production:/app/.env.production
+    ports:
+      - "80:80"
+    networks:
+      - kms-network
