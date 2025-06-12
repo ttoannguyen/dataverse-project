@@ -28,6 +28,8 @@ export default {
     "/dataverse/getdata",
     "/dataverseItem/getDataset",
     "/file/getFile",
+    "/file/getMetadata",
+    "/file/getDownloadCount",
   ],
   redis: process.env.REDIS_URL,
 };

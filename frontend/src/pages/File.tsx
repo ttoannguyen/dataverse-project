@@ -17,6 +17,14 @@ import {
 } from "react-router-dom";
 import fileApi from "@/services/fileApi";
 import type { DataFileResponse } from "@/types/file";
+import {
+  getAuthors,
+  getAuthorsTop,
+  getCitation,
+  getFiletCitation,
+} from "@/helpers/metadataDataset/getMetadata";
+import FileMetadataBlock from "@/components/FileMetadataBlock";
+import BreadcrumbBlock from "@/components/BreadcrumbBlock ";
 // import "../../assets/icon/fontawesome/css/all.min.css";
 // import defaultFile from "../../assets/img/muti_file_icon.png";
 // import "../../global.css";
@@ -42,13 +50,14 @@ const FIle = () => {
   const [fullDescMode, setFullDescMode] = useState<boolean>(false);
   const [shortDescMode, setShortDescMode] = useState<boolean>(false);
   const descRef = useRef<HTMLDivElement>(null);
-  const [navbar, setNavbar] = useState<string>("Files");
+  const [navbar, setNavbar] = useState<string>("Metadata");
+  const [downloadCount, setDownloadCount] = useState<string | null>(null);
 
   const toggleDropdown = () => setIsOpen(!isOpen);
 
   useEffect(() => {
+    setLoading(true);
     const getDatasetItem = async (): Promise<void> => {
-      setLoading(true);
       // if (!persistentId) return;
       if (fileId) {
         const tempFile: DataFileResponse | null = await fileApi.getFile(
@@ -65,6 +74,11 @@ const FIle = () => {
               setError
             );
 
+          if (tempDataset) {
+            setDataset(tempDataset);
+            setMetadata(tempDataset.data.latestVersion.metadataBlocks);
+          }
+
           console.log(tempDataset);
         }
       }
@@ -72,6 +86,24 @@ const FIle = () => {
       setLoading(false);
     };
 
+    const getDownloadCount = async (): Promise<void> => {
+      // if (!persistentId) return;
+      if (fileId) {
+        const tempCount: {
+          status: string;
+          data: {
+            message: string;
+          } | null;
+        } = await fileApi.getDownloadCount(fileId);
+
+        if (tempCount.data?.message) {
+          setDownloadCount(tempCount.data?.message);
+        }
+      }
+
+      setLoading(false);
+    };
+    getDownloadCount();
     getDatasetItem();
   }, [persistentId, fileId]);
 
@@ -122,188 +154,187 @@ const FIle = () => {
       <div className="text-base pt-[28px] pb-[28px] px-0">
         <Link
           className="block text-hover-underline-blue  mt-[5px] text-[18px] mb-[10px]"
-          to={"/"}
+          to={`/dataverse?q=${file?.data.dataFile.isPartOf.isPartOf.identifier}`}
         >
-          {file?.data.dataFile.isPartOf.displayName}
+          {file?.data.dataFile.isPartOf.isPartOf.displayName}
         </Link>
         <p style={{ color: "#666666" }}>
-          {"(" +
-            // metadata?.citation.fields[1].value[0].authorAffiliation.value +
-            ")"}
+          {"(" + getAuthorsTop(metadata?.citation.fields) + ")"}
         </p>
       </div>
 
-      <div className="">
-        <Link to={"/"} className="text-hover-underline-blue">
-          Dataverse - CTU
-        </Link>{" "}
-        &gt; <span className="text-hover-underline-blue">{"hihi"}</span>
-      </div>
+      {file?.data.dataFile.isPartOf && (
+        <BreadcrumbBlock isPartOf={file?.data.dataFile.isPartOf} />
+      )}
 
       {file && (
         <div>
           <h1 className="text-[36px] leading-[1.1] font-bold mt-4 mb-0">
             {file?.data.label}
           </h1>
-          <p>This file is part of</p>
+          <p>
+            This file is part of "{file.data.dataFile.isPartOf.displayName}"{" "}
+          </p>
         </div>
       )}
 
       <span className="label-default">
         {"Version " + dataset?.data.latestVersion.versionNumber}
       </span>
+
       <div className="grid grid-cols-[75%_25%] gap-4">
-        <div className=" pt-4 pm-4 text-sm">
-          <div className="p-4 custom-light-blue grid grid-cols-[15%_85%] ">
-            <div className="w-full text-xl ">
-              <img src={defaultFile} alt="" />
-            </div>
-            <div className="pl-4">
-              <div>
-                {/* {metadata?.citation.fields[1].value[0].authorName.value +
-                  ", " +
-                  dataset?.data.latestVersion.releaseTime.split("-")[0] +
-                  ', "' +
-                  metadata?.citation.fields[0].value +
-                  '", '} */}
-                <a
-                  href={dataset?.data.persistentUrl}
-                  className="text-hover-link-blue"
-                  target="_blank"
-                >
-                  {" "}
-                  {dataset?.data.persistentUrl}
-                </a>
-                {", " +
-                  dataset?.data.publisher +
-                  ", V" +
-                  dataset?.data.latestVersion.versionNumber}
-              </div>
+        <div>
+          <div className="mt-4">File Citation</div>
+          <div className=" pt-4 pm-4 text-sm ">
+            <div className="p-4 bg-[#f5f5f5] grid  ">
+              <div className="pl-4">
+                <div>
+                  <span
+                    dangerouslySetInnerHTML={{
+                      __html: getFiletCitation(
+                        metadata?.citation.fields,
+                        dataset?.data.latestVersion.releaseTime.split("-")[0],
+                        file?.data.dataFile.filename
+                      ),
+                    }}
+                  ></span>
 
-              <div className="grid grid-cols-[30%_70%] ">
-                <div className=" pt-4">
-                  <div className="relative inline-block text-left">
-                    <button
-                      onClick={toggleDropdown}
-                      className="cursor-pointer flex items-center text-hover-underline-blue "
-                    >
-                      <p className="relative">
-                        {" "}
-                        Cite Dataset
-                        <i className="fa-solid fa-sort-down absolute left-[105%]"></i>
-                      </p>
-                    </button>
+                  <a
+                    href={file?.data.dataFile.pidURL}
+                    className="text-hover-link-blue"
+                    target="_blank"
+                  >
+                    {" "}
+                    {file?.data.dataFile.pidURL}
+                  </a>
+                  {", " + dataset?.data.publisher + ", V" + file?.data.version}
+                </div>
 
-                    {isOpen && (
-                      <div className="absolute z-10 mt-2 w-44 bg-white rounded shadow-lg border border-[#ccc]">
-                        <a
-                          href="#"
-                          className="block px-4 py-2 text-gray-800 underline hover:bg-gray-100 hover:no-underline "
-                        >
-                          {/* {metadata.format} */}
-                        </a>
-                        {/* <a
-                            href="#"
-                            className="block px-4 py-2 text-gray-800 underline hover:bg-gray-100 hover:no-underline "
-                          >
-                            RIS
-                          </a>
+                <div className="grid grid-cols-[30%_70%] ">
+                  <div className=" pt-4">
+                    <div className="relative inline-block text-left">
+                      <button
+                        onClick={toggleDropdown}
+                        className="cursor-pointer flex items-center text-hover-underline-blue "
+                      >
+                        <p className="relative">
+                          {" "}
+                          Cite Dataset
+                          <i className="fa-solid fa-sort-down absolute left-[105%]"></i>
+                        </p>
+                      </button>
+
+                      {isOpen && (
+                        <div className="absolute z-10 mt-2 w-44 bg-white rounded shadow-lg border border-[#ccc]">
                           <a
                             href="#"
                             className="block px-4 py-2 text-gray-800 underline hover:bg-gray-100 hover:no-underline "
                           >
-                            Bib TeX
-                          </a> */}
-                      </div>
-                    )}
+                            {/* {metadata.format} */}
+                          </a>
+                          {/* <a
+                              href="#"
+                              className="block px-4 py-2 text-gray-800 underline hover:bg-gray-100 hover:no-underline "
+                            >
+                              RIS
+                            </a>
+                            <a
+                              href="#"
+                              className="block px-4 py-2 text-gray-800 underline hover:bg-gray-100 hover:no-underline "
+                            >
+                              Bib TeX
+                            </a> */}
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
-                <div className="text-left pt-4">
-                  Learn about{" "}
-                  <Link to={"/"} className="text-hover-link-blue">
-                    Data Citation Standards
-                  </Link>
-                  .
+                  <div className="text-left pt-4">
+                    Learn about{" "}
+                    <Link to={"/"} className="text-hover-link-blue">
+                      Data Citation Standards
+                    </Link>
+                    .
+                  </div>
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="mt-8 pl-4 pr-4">
-            <div className=" grid grid-cols-[30%_70%] gap-4">
-              <div className="font-bold">Description</div>
-              <div
-                ref={descRef}
-                className={
-                  fullDescMode
-                    ? "text-justify relative"
-                    : "text-justify max-h-[250px] overflow-hidden relative"
-                }
-              >
-                {/* {metadata?.citation.fields[3].value[0].dsDescriptionValue.value} */}
+          <div className="mt-4">Dataset Citation</div>
 
-                {!shortDescMode && (
-                  <>
-                    {fullDescMode ? (
-                      <div className="text-center top-[100%] w-full absolute bottom-0">
-                        <button
-                          className="text-hover-underline-blue cursor-pointer"
-                          onClick={() => setFullDescMode(false)}
-                        >
-                          Collapse Description [-]
-                        </button>
-                      </div>
-                    ) : (
-                      <div
-                        className="text-center pt-[250px] w-full absolute bottom-0"
-                        style={{
-                          background:
-                            "linear-gradient(180deg, hsla(0, 0%, 100%, 0), #fff 80%)",
-                        }}
+          <div className=" pt-4 pm-4 text-sm">
+            <div className="p-4 custom-light-blue grid  ">
+              <div className="pl-4">
+                <div>
+                  {getCitation(
+                    metadata?.citation.fields,
+                    dataset?.data.latestVersion.releaseTime.split("-")[0]
+                  )}
+                  <a
+                    href={dataset?.data.persistentUrl}
+                    className="text-hover-link-blue"
+                    target="_blank"
+                  >
+                    {" "}
+                    {dataset?.data.persistentUrl}
+                  </a>
+                  {", " +
+                    dataset?.data.publisher +
+                    ", V" +
+                    dataset?.data.latestVersion.versionNumber}
+                </div>
+
+                <div className="grid grid-cols-[30%_70%] ">
+                  <div className=" pt-4">
+                    <div className="relative inline-block text-left">
+                      <button
+                        onClick={toggleDropdown}
+                        className="cursor-pointer flex items-center text-hover-underline-blue "
                       >
-                        <button
-                          className="text-hover-underline-blue cursor-pointer"
-                          onClick={() => setFullDescMode(true)}
-                        >
-                          Read full Description [+]
-                        </button>
-                      </div>
-                    )}
-                  </>
-                )}
-              </div>
-            </div>
+                        <p className="relative">
+                          {" "}
+                          Cite Dataset
+                          <i className="fa-solid fa-sort-down absolute left-[105%]"></i>
+                        </p>
+                      </button>
 
-            <div className=" mt-4 grid grid-cols-[30%_70%] gap-4">
-              <div className="font-bold">Subject</div>
-              <div>
-                {/* {metadata && metadata.citation.fields[4].value.join("; ")} */}
-              </div>
-            </div>
-
-            {/* <div className="mt-4 grid grid-cols-[30%_70%] gap-4">
-              <div className="font-bold">Related Publication </div>
-              <div>haha</div>
-            </div> */}
-
-            <div className="mt-4 grid grid-cols-[30%_70%] gap-4">
-              <div className="font-bold">License/Data Use Agreement</div>
-              <div className="flex">
-                <img
-                  src={dataset?.data.latestVersion.license.iconUri}
-                  alt=""
-                  className="mr-4"
-                />
-                <a
-                  href={dataset?.data.latestVersion.license.uri}
-                  className="text-hover-underline-blue underline"
-                >
-                  {dataset?.data.latestVersion.license.name}
-                </a>
+                      {isOpen && (
+                        <div className="absolute z-10 mt-2 w-44 bg-white rounded shadow-lg border border-[#ccc]">
+                          <a
+                            href="#"
+                            className="block px-4 py-2 text-gray-800 underline hover:bg-gray-100 hover:no-underline "
+                          >
+                            {/* {metadata.format} */}
+                          </a>
+                          {/* <a
+                              href="#"
+                              className="block px-4 py-2 text-gray-800 underline hover:bg-gray-100 hover:no-underline "
+                            >
+                              RIS
+                            </a>
+                            <a
+                              href="#"
+                              className="block px-4 py-2 text-gray-800 underline hover:bg-gray-100 hover:no-underline "
+                            >
+                              Bib TeX
+                            </a> */}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  <div className="text-left pt-4">
+                    Learn about{" "}
+                    <Link to={"/"} className="text-hover-link-blue">
+                      Data Citation Standards
+                    </Link>
+                    .
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
+
         <div className="pt-4 pm-4">
           <div className="relative inline-block text-left w-full">
             <button
@@ -311,7 +342,7 @@ const FIle = () => {
               className="cursor-pointer flex justify-center items-center w-full p-2 primary-btn"
             >
               <p className="relative h-full">
-                Access Dataset
+                Access Files
                 <i className="fa-solid fa-sort-down absolute left-[105%]"></i>
               </p>
             </button>
@@ -344,24 +375,16 @@ const FIle = () => {
 
           <div className="text-sm">
             <div> Dataset Metrics </div>
-            <div className="p-4 border-l border-r border-b border-gray-300">
-              {" "}
-              13 Downloads{" "}
-            </div>
+            {downloadCount && (
+              <div className="p-4 border-l border-r border-b border-gray-300">
+                {" "}
+                {downloadCount} Downloads{" "}
+              </div>
+            )}
           </div>
         </div>
       </div>
       <div className="border-b border-[#ccc] mb-4 flex">
-        <button
-          className={
-            navbar === "Files"
-              ? "mr-4 cursor-pointer border-b border-[#337ab7] text-[#337ab7]"
-              : "mr-4 cursor-pointer hover:border-b hover:border-[#337ab7] hover:text-[#337ab7] transition duration-300"
-          }
-          onClick={() => setNavbar("Files")}
-        >
-          Files
-        </button>
         <button
           className={
             navbar === "Metadata"
@@ -372,16 +395,7 @@ const FIle = () => {
         >
           Metadata
         </button>
-        <button
-          className={
-            navbar === "Terms"
-              ? "mr-4 cursor-pointer border-b border-[#337ab7] text-[#337ab7]"
-              : "mr-4 cursor-pointer hover:border-b hover:border-[#337ab7] hover:text-[#337ab7] transition duration-300"
-          }
-          onClick={() => setNavbar("Terms")}
-        >
-          Terms
-        </button>
+
         <button
           className={
             navbar === "Versions"
@@ -393,6 +407,10 @@ const FIle = () => {
           Versions
         </button>
       </div>
+
+      {navbar === "Metadata" && (
+        <FileMetadataBlock metadata={metadata} dataset={dataset} file={file} />
+      )}
     </div>
   );
 };

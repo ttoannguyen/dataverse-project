@@ -20,6 +20,7 @@ import TermsBlock from "@/components/TermsBlock";
 import VersionBlock from "@/components/VersionBlock";
 import {
   getAuthors,
+  getAuthorsTop,
   getCitation,
   getDescription,
   getSubjects,
@@ -131,7 +132,7 @@ const Dataset = () => {
           Dataverse - CTU
         </Link>
         <p style={{ color: "#666666" }}>
-          {"(" + metadata?.citation.fields[1].value[0].authorName.value + ")"}
+          {"(" + getAuthorsTop(metadata?.citation.fields) + ")"}
         </p>
       </div>
 
@@ -237,7 +238,11 @@ const Dataset = () => {
                     : "text-justify max-h-[250px] overflow-hidden relative"
                 }
               >
-                {getDescription(metadata?.citation.fields)}
+                <div
+                  dangerouslySetInnerHTML={{
+                    __html: getDescription(metadata?.citation.fields),
+                  }}
+                ></div>
 
                 {!shortDescMode && (
                   <>
