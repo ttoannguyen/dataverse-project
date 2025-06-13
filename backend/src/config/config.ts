@@ -26,7 +26,12 @@ export default {
     "/dataverse/datasets",
     "/dataverse/count",
     "/dataverse/getdata",
-    "/dataverseItem/getDataset",
+    "/dataset/getDataset",
+    "/dataset/getDatasetDownloadCount",
+    "/dataset/getDownloadSize",
+    "/file/getFile",
+    "/file/getMetadata",
+    "/file/getDownloadCount",
   ],
   redis: process.env.REDIS_URL,
 };
