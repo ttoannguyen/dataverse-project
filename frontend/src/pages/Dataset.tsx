@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import datasetApi from "@/services/DatasetApi";
-import axios from "axios";
+
 import type {
   DatasetFile,
   DatasetInterface,
@@ -8,18 +8,12 @@ import type {
 } from "@/types/datasetInterface";
 import defaultFile from "../assets/img/muti_file_icon.png";
 
-import {
-  Link,
-  useLocation,
-  useNavigate,
-  useSearchParams,
-} from "react-router-dom";
+import { Link, useLocation, useSearchParams } from "react-router-dom";
 import FileBlock from "@/components/FileBlock";
 import MetadataBlock from "@/components/MetadataBlock";
 import TermsBlock from "@/components/TermsBlock";
 import VersionBlock from "@/components/VersionBlock";
 import {
-  getAuthors,
   getAuthorsTop,
   getCitation,
   getDescription,
@@ -37,7 +31,7 @@ const Dataset = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const persistentId = searchParams.get("persistentId");
   const location = useLocation();
-  const navigate = useNavigate();
+  const dataverseApi = import.meta.env.VITE_DATAVERSE_URL;
 
   const [dataset, setDataset] = useState<DatasetInterface | null>(null);
   const [metadata, setMetadata] = useState<MetadataBlocks | null>(null);
@@ -166,9 +160,9 @@ const Dataset = () => {
         <BreadcrumbBlock isPartOf={dataset?.data.isPartOf} />
       )}
 
-      {metadata && (
+      {metadata?.citation.fields && (
         <h1 className="text-[36px] leading-[1.1] font-bold mt-4 mb-0">
-          {metadata?.citation.fields[0].value}
+          {getTitle(metadata?.citation.fields)}
         </h1>
       )}
 
@@ -348,7 +342,7 @@ const Dataset = () => {
 
                 {downloadSize?.data.storageSize && (
                   <a
-                    href={`https://demo.dataverse.org/api/access/dataset/:persistentId/?persistentId=${dataset.data.persistentUrl}`}
+                    href={`${dataverseApi}/access/dataset/:persistentId/?persistentId=${dataset.data.persistentUrl}`}
                     className="block px-4 py-2 text-gray-800 hover:bg-gray-100"
                   >
                     Download ZIP ({formatBytes(downloadSize?.data.storageSize)})
@@ -418,7 +412,9 @@ const Dataset = () => {
           Versions
         </button>
       </div>
-      {navbar === "Files" && <FileBlock metadata={metadata} files={files} />}
+      {navbar === "Files" && (
+        <FileBlock files={files} persistentUrl={dataset.data.persistentUrl} />
+      )}
       {navbar === "Metadata" && (
         <MetadataBlock metadata={metadata} dataset={dataset} />
       )}

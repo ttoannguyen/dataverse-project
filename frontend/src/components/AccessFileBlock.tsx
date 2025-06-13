@@ -9,6 +9,7 @@ interface ChildProps {
 
 const AccessFileBlock: React.FC<ChildProps> = ({ metadataFile, file }) => {
   const [citationOpen, setCitationOpen] = useState<boolean>(true);
+  const dataverseApi = import.meta.env.VITE_DATAVERSE_URL;
 
   return (
     <div className="absolute z-10 mt-1 min-w-[160px] right-[0] bg-white border border-[#ccc] rounded shadow-lg px-6 py-2">
@@ -41,7 +42,7 @@ const AccessFileBlock: React.FC<ChildProps> = ({ metadataFile, file }) => {
 
             {file && (
               <a
-                href={`https://demo.dataverse.org/api/access/datafile/${file.data.dataFile.id}`}
+                href={`${dataverseApi}/access/datafile/${file.data.dataFile.id}`}
                 className=" hover:bg-gray-100 flex items-center"
               >
                 {file.data.dataFile.friendlyType}

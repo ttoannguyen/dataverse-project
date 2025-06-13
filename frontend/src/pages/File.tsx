@@ -1,31 +1,22 @@
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import datasetApi from "@/services/DatasetApi";
-import axios from "axios";
+
 import type {
-  DataFile,
-  DatasetFile,
   DatasetInterface,
   MetadataBlocks,
 } from "@/types/datasetInterface";
-import defaultFile from "../assets/img/muti_file_icon.png";
 
-import {
-  Link,
-  useLocation,
-  useNavigate,
-  useSearchParams,
-} from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import fileApi from "@/services/fileApi";
 import type { DataFileResponse, GetMetadata } from "@/types/file";
 import {
-  getAuthors,
   getAuthorsTop,
   getCitation,
   getFiletCitation,
 } from "@/helpers/metadataDataset/getMetadata";
 import FileMetadataBlock from "@/components/FileMetadataBlock";
 import BreadcrumbBlock from "@/components/BreadcrumbBlock ";
-import AccessFileBlock from "@/components/accessFileBlock";
+import AccessFileBlock from "@/components/AccessFileBlock";
 import { ChevronDown } from "lucide-react";
 import CitationDownloadBlock from "@/components/CitationDownloadBlock";
 // import "../../assets/icon/fontawesome/css/all.min.css";
@@ -36,8 +27,6 @@ const FIle = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const persistentId = searchParams.get("persistentId");
   const fileId = searchParams.get("fileId");
-  const location = useLocation();
-  const navigate = useNavigate();
 
   const [dataset, setDataset] = useState<DatasetInterface | null>(null);
   const [metadata, setMetadata] = useState<MetadataBlocks | null>(null);
@@ -46,13 +35,8 @@ const FIle = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const pathParts = location.pathname.split("/");
-  const datasetId = pathParts[pathParts.length - 1];
-  const [isOpen, setIsOpen] = useState(false);
   const [accessIsOpen, setAccessIsOpen] = useState(false);
-  const [fullDescMode, setFullDescMode] = useState<boolean>(false);
-  const [shortDescMode, setShortDescMode] = useState<boolean>(false);
-  const descRef = useRef<HTMLDivElement>(null);
+
   const [navbar, setNavbar] = useState<string>("Metadata");
   const [downloadCount, setDownloadCount] = useState<string | null>(null);
   const [metadataFile, setMetadataFile] = useState<GetMetadata | null>(null);
@@ -126,17 +110,6 @@ const FIle = () => {
     getDatasetItem();
     getMetadataFile();
   }, [persistentId, fileId]);
-
-  useEffect(() => {
-    if (descRef.current) {
-      const descHeight = descRef.current.scrollHeight;
-
-      if (descHeight < 250) {
-        setShortDescMode(true);
-        setFullDescMode(true);
-      }
-    }
-  }, [metadata]);
 
   if (loading) {
     return (

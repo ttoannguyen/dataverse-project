@@ -1,6 +1,8 @@
 import type { DatasetInterface } from "@/types/datasetInterface";
 import axios from "axios";
 
+const apiUrl = import.meta.env.VITE_API_URL;
+
 const datasetApi = {
   getDataset: async (
     id: string,
@@ -8,7 +10,7 @@ const datasetApi = {
   ): Promise<DatasetInterface | null> => {
     try {
       const response = await axios.get(
-        `http://localhost:3000/api/v1/dataset/getDataset?persistentId=${id}`
+        `${apiUrl}/v1/dataset/getDataset?persistentId=${id}`
       );
       return response.data;
     } catch (error) {
@@ -25,7 +27,7 @@ const datasetApi = {
   } | null> => {
     try {
       const response = await axios.get(
-        `http://localhost:3000/api/v1/dataset/getDatasetDownloadCount?id=${id}`
+        `${apiUrl}/v1/dataset/getDatasetDownloadCount?id=${id}`
       );
       return response.data;
     } catch (error) {
@@ -50,7 +52,7 @@ const datasetApi = {
       versionNumber.toString() + "." + versionMinorNumber.toString();
     try {
       const response = await axios.get(
-        `http://localhost:3000/api/v1/dataset/getDownloadSize?id=${id}&version=${version}`
+        `${apiUrl}/v1/dataset/getDownloadSize?id=${id}&version=${version}`
       );
       return response.data;
     } catch (error) {

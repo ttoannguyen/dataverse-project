@@ -1,4 +1,3 @@
-import { FileMetadata } from "./../../../backend/src/types/file.d";
 export interface Checksum {
   type: string; // e.g., "MD5"
   value: string;

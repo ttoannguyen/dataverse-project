@@ -1,14 +1,13 @@
 import { formatDateOnly } from "@/helpers/format/formatDate";
 import formatBytes from "@/helpers/format/formatSizeData";
 import { getDepositDate } from "@/helpers/metadataDataset/getMetadata";
-import fileApi from "@/services/fileApi";
+
 import type {
   DatasetInterface,
   MetadataBlocks,
 } from "@/types/datasetInterface";
 import type { DataFileResponse } from "@/types/file";
 import { Download } from "lucide-react";
-import React, { useEffect, useState } from "react";
 
 interface ChildProps {
   metadata: MetadataBlocks | null;
@@ -20,13 +19,13 @@ const FileMetadataBlock: React.FC<ChildProps> = ({
   dataset,
   file,
 }) => {
-  console.log(metadata);
+  const dataverseApi = import.meta.env.VITE_DATAVERSE_URL;
 
-  const [metadataFile, setMetadataFile] = useState<{
-    label: string;
-    restricted: boolean;
-    id: number;
-  } | null>(null);
+  // const [metadataFile, setMetadataFile] = useState<{
+  //   label: string;
+  //   restricted: boolean;
+  //   id: number;
+  // } | null>(null);
 
   // useEffect(() => {
   //   const getMetadataFile = async (): Promise<void> => {
@@ -74,7 +73,7 @@ const FileMetadataBlock: React.FC<ChildProps> = ({
             {/* {metadata?.citation.fields[0].value} */}
 
             <a
-              href={`https://demo.dataverse.org/api/access/datafile/${file?.data.dataFile.id}`}
+              href={`${dataverseApi}/access/datafile/${file?.data.dataFile.id}`}
               className="border border-[#337ab7] hover:border-[#23527c] rounded-[5px] px-8 py-2 cursor-pointer text-[#337ab7] hover:text-[#23527c]"
             >
               <Download />
