@@ -53,8 +53,6 @@ const BreadcrumbBlock: React.FC<ChildProps> = ({ isPartOf }) => {
 
   const breadcrumbArray: Part[] = getIsPartOfChain(newPart);
 
-  console.log(breadcrumbArray);
-
   const getLink = (b: Part): string => {
     switch (b.type) {
       case "DATASET":

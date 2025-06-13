@@ -1,4 +1,4 @@
-import type { DataFileResponse } from "@/types/file";
+import type { DataFileResponse, GetMetadata } from "@/types/file";
 import axios from "axios";
 
 const fileApi = {
@@ -18,13 +18,7 @@ const fileApi = {
     }
   },
 
-  getMetadataFile: async (
-    id: string
-  ): Promise<{
-    label: string;
-    restricted: boolean;
-    id: string;
-  } | null> => {
+  getMetadataFile: async (id: string): Promise<GetMetadata | null> => {
     try {
       const response = await axios.get(
         `http://localhost:3000/api/v1/file/getMetadata?id=${id}`

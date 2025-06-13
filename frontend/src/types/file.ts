@@ -1,3 +1,4 @@
+import { FileMetadata } from "./../../../backend/src/types/file.d";
 export interface Checksum {
   type: string; // e.g., "MD5"
   value: string;
@@ -12,7 +13,7 @@ export interface DataverseParent {
 }
 
 export interface DatasetParent {
-  type: "DATASET";
+  type: string;
   persistentIdentifier: string;
   identifier: number;
   version: string;
@@ -52,4 +53,10 @@ export interface FileMetadata {
 export interface DataFileResponse {
   status: string;
   data: FileMetadata;
+}
+
+export interface GetMetadata {
+  label: string;
+  restricted: boolean;
+  id: number;
 }

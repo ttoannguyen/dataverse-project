@@ -16,7 +16,7 @@ import {
   useSearchParams,
 } from "react-router-dom";
 import fileApi from "@/services/fileApi";
-import type { DataFileResponse } from "@/types/file";
+import type { DataFileResponse, GetMetadata } from "@/types/file";
 import {
   getAuthors,
   getAuthorsTop,
@@ -25,6 +25,9 @@ import {
 } from "@/helpers/metadataDataset/getMetadata";
 import FileMetadataBlock from "@/components/FileMetadataBlock";
 import BreadcrumbBlock from "@/components/BreadcrumbBlock ";
+import AccessFileBlock from "@/components/accessFileBlock";
+import { ChevronDown } from "lucide-react";
+import CitationDownloadBlock from "@/components/CitationDownloadBlock";
 // import "../../assets/icon/fontawesome/css/all.min.css";
 // import defaultFile from "../../assets/img/muti_file_icon.png";
 // import "../../global.css";
@@ -52,8 +55,10 @@ const FIle = () => {
   const descRef = useRef<HTMLDivElement>(null);
   const [navbar, setNavbar] = useState<string>("Metadata");
   const [downloadCount, setDownloadCount] = useState<string | null>(null);
+  const [metadataFile, setMetadataFile] = useState<GetMetadata | null>(null);
 
-  const toggleDropdown = () => setIsOpen(!isOpen);
+  const [citeFileOpen, setCiteFileOpen] = useState<boolean>(false);
+  const [citeDatasetOpen, setCiteDatasetOpen] = useState<boolean>(false);
 
   useEffect(() => {
     setLoading(true);
@@ -86,6 +91,20 @@ const FIle = () => {
       setLoading(false);
     };
 
+    const getMetadataFile = async (): Promise<void> => {
+      // if (!persistentId) return;
+      if (fileId) {
+        const tempMetadataFile: GetMetadata | null =
+          await fileApi.getMetadataFile(fileId);
+
+        if (tempMetadataFile) {
+          setMetadataFile(tempMetadataFile);
+        }
+      }
+
+      setLoading(false);
+    };
+
     const getDownloadCount = async (): Promise<void> => {
       // if (!persistentId) return;
       if (fileId) {
@@ -93,10 +112,10 @@ const FIle = () => {
           status: string;
           data: {
             message: string;
-          } | null;
-        } = await fileApi.getDownloadCount(fileId);
+          };
+        } | null = await fileApi.getDownloadCount(fileId);
 
-        if (tempCount.data?.message) {
+        if (tempCount) {
           setDownloadCount(tempCount.data?.message);
         }
       }
@@ -105,6 +124,7 @@ const FIle = () => {
     };
     getDownloadCount();
     getDatasetItem();
+    getMetadataFile();
   }, [persistentId, fileId]);
 
   useEffect(() => {
@@ -135,19 +155,16 @@ const FIle = () => {
     );
   }
 
-  // if (!dataset) {
-  //   return (
-  //     <div className="p-4">
-  //       <h2 className="text-xl font-semibold text-red-600">
-  //         Dataset not found
-  //       </h2>
-  //       <p>The dataset with ID "{datasetId}" does not exist.</p>
-  //     </div>
-  //   );
-  // }
-
-  // const { metadata, data, type } = dataset;
-  // console.log(dataset);
+  if (!file) {
+    return (
+      <div className="p-4">
+        <h2 className="text-xl font-semibold text-red-600">
+          Dataset not found
+        </h2>
+        <p>The dataset with ID "{fileId}" does not exist.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="p-4">
@@ -214,45 +231,34 @@ const FIle = () => {
                   <div className=" pt-4">
                     <div className="relative inline-block text-left">
                       <button
-                        onClick={toggleDropdown}
+                        onClick={() => setCiteFileOpen(!citeFileOpen)}
                         className="cursor-pointer flex items-center text-hover-underline-blue "
                       >
-                        <p className="relative">
+                        <p className="relative flex items-center">
                           {" "}
-                          Cite Dataset
-                          <i className="fa-solid fa-sort-down absolute left-[105%]"></i>
+                          <span className="mr-1">Cite Data File</span>
+                          <ChevronDown size={14} />
                         </p>
                       </button>
 
-                      {isOpen && (
-                        <div className="absolute z-10 mt-2 w-44 bg-white rounded shadow-lg border border-[#ccc]">
-                          <a
-                            href="#"
-                            className="block px-4 py-2 text-gray-800 underline hover:bg-gray-100 hover:no-underline "
-                          >
-                            {/* {metadata.format} */}
-                          </a>
-                          {/* <a
-                              href="#"
-                              className="block px-4 py-2 text-gray-800 underline hover:bg-gray-100 hover:no-underline "
-                            >
-                              RIS
-                            </a>
-                            <a
-                              href="#"
-                              className="block px-4 py-2 text-gray-800 underline hover:bg-gray-100 hover:no-underline "
-                            >
-                              Bib TeX
-                            </a> */}
+                      {citeFileOpen && (
+                        <div className="absolute z-10 mt-2  min-w-[250px]  bg-white border border-[#ccc] rounded shadow-lg px-6 py-2">
+                          <CitationDownloadBlock />
                         </div>
                       )}
                     </div>
                   </div>
                   <div className="text-left pt-4">
                     Learn about{" "}
-                    <Link to={"/"} className="text-hover-link-blue">
+                    <a
+                      href={
+                        "https://dataverse.org/best-practices/data-citation"
+                      }
+                      className="text-hover-link-blue"
+                      target="_black"
+                    >
                       Data Citation Standards
-                    </Link>
+                    </a>
                     .
                   </div>
                 </div>
@@ -288,45 +294,34 @@ const FIle = () => {
                   <div className=" pt-4">
                     <div className="relative inline-block text-left">
                       <button
-                        onClick={toggleDropdown}
                         className="cursor-pointer flex items-center text-hover-underline-blue "
+                        onClick={() => setCiteDatasetOpen(!citeDatasetOpen)}
                       >
-                        <p className="relative">
+                        <p className="relative flex items-center">
                           {" "}
-                          Cite Dataset
-                          <i className="fa-solid fa-sort-down absolute left-[105%]"></i>
+                          <span className="mr-1">Cite Dataset</span>
+                          <ChevronDown size={14} />
                         </p>
                       </button>
 
-                      {isOpen && (
-                        <div className="absolute z-10 mt-2 w-44 bg-white rounded shadow-lg border border-[#ccc]">
-                          <a
-                            href="#"
-                            className="block px-4 py-2 text-gray-800 underline hover:bg-gray-100 hover:no-underline "
-                          >
-                            {/* {metadata.format} */}
-                          </a>
-                          {/* <a
-                              href="#"
-                              className="block px-4 py-2 text-gray-800 underline hover:bg-gray-100 hover:no-underline "
-                            >
-                              RIS
-                            </a>
-                            <a
-                              href="#"
-                              className="block px-4 py-2 text-gray-800 underline hover:bg-gray-100 hover:no-underline "
-                            >
-                              Bib TeX
-                            </a> */}
+                      {citeDatasetOpen && (
+                        <div className="absolute z-10 mt-2  min-w-[250px]  bg-white border border-[#ccc] rounded shadow-lg px-6 py-2">
+                          <CitationDownloadBlock />
                         </div>
                       )}
                     </div>
                   </div>
                   <div className="text-left pt-4">
                     Learn about{" "}
-                    <Link to={"/"} className="text-hover-link-blue">
+                    <a
+                      href={
+                        "https://dataverse.org/best-practices/data-citation"
+                      }
+                      className="text-hover-link-blue"
+                      target="_black"
+                    >
                       Data Citation Standards
-                    </Link>
+                    </a>
                     .
                   </div>
                 </div>
@@ -348,19 +343,7 @@ const FIle = () => {
             </button>
 
             {accessIsOpen && (
-              <div className="absolute z-10 mt-1 w-[90%] left-[10%] bg-white border border-[#ccc] rounded shadow-lg p-4">
-                <p className="pl-4 text-[13px]">
-                  Download Options
-                  <i className="ml-2 fa-solid fa-download"></i>
-                </p>
-
-                <a
-                  href="#"
-                  className="block px-4 py-2 text-gray-800 hover:bg-gray-100"
-                >
-                  Download ZIP (12.2MB)
-                </a>
-              </div>
+              <AccessFileBlock metadataFile={metadataFile} file={file} />
             )}
           </div>
 

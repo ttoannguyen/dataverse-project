@@ -26,6 +26,8 @@ import {
   getSubjects,
   getTitle,
 } from "@/helpers/metadataDataset/getMetadata";
+import BreadcrumbBlock from "@/components/BreadcrumbBlock ";
+import formatBytes from "@/helpers/format/formatSizeData";
 
 // import "../../assets/icon/fontawesome/css/all.min.css";
 // import defaultFile from "../../assets/img/muti_file_icon.png";
@@ -52,6 +54,17 @@ const Dataset = () => {
   const [shortDescMode, setShortDescMode] = useState<boolean>(false);
   const descRef = useRef<HTMLDivElement>(null);
   const [navbar, setNavbar] = useState<string>("Files");
+  const [downloadCount, setDownloadCount] = useState<{
+    id: number;
+    downloadCount: number;
+  } | null>(null);
+  const [downloadSize, setDownloadSize] = useState<{
+    status: string;
+    data: {
+      message: string;
+      storageSize: number;
+    };
+  } | null>(null);
 
   const toggleDropdown = () => setIsOpen(!isOpen);
 
@@ -66,11 +79,28 @@ const Dataset = () => {
       );
 
       if (tempDataset) {
-        console.log(tempDataset);
-
         setDataset(tempDataset);
         setMetadata(tempDataset.data.latestVersion.metadataBlocks);
         setFiles(tempDataset.data.latestVersion.files);
+
+        const tempDownloadCount: {
+          id: number;
+          downloadCount: number;
+        } | null = await datasetApi.getDownloadCount(tempDataset.data.id);
+
+        if (tempDownloadCount) {
+          setDownloadCount(tempDownloadCount);
+        }
+
+        const tempDownloadSize = await datasetApi.getDownloadSize(
+          tempDataset.data.id,
+          tempDataset.data.latestVersion.versionNumber,
+          tempDataset.data.latestVersion.versionMinorNumber
+        );
+
+        if (tempDownloadSize) {
+          setDownloadSize(tempDownloadSize);
+        }
       }
 
       setLoading(false);
@@ -107,19 +137,16 @@ const Dataset = () => {
     );
   }
 
-  // if (!dataset) {
-  //   return (
-  //     <div className="p-4">
-  //       <h2 className="text-xl font-semibold text-red-600">
-  //         Dataset not found
-  //       </h2>
-  //       <p>The dataset with ID "{datasetId}" does not exist.</p>
-  //     </div>
-  //   );
-  // }
-
-  // const { metadata, data, type } = dataset;
-  // console.log(dataset);
+  if (!dataset) {
+    return (
+      <div className="p-4">
+        <h2 className="text-xl font-semibold text-red-600">
+          Dataset not found
+        </h2>
+        <p>The dataset with ID "{datasetId}" does not exist.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="p-4">
@@ -128,20 +155,16 @@ const Dataset = () => {
           className="block text-hover-underline-blue  mt-[5px] text-[18px] mb-[10px]"
           to={"/"}
         >
-          {/* {metadata.topic} */}
-          Dataverse - CTU
+          {dataset.data.isPartOf?.displayName}
         </Link>
         <p style={{ color: "#666666" }}>
           {"(" + getAuthorsTop(metadata?.citation.fields) + ")"}
         </p>
       </div>
 
-      <div className="">
-        <Link to={"/"} className="text-hover-underline-blue">
-          Dataverse - CTU
-        </Link>{" "}
-        &gt; <span className="text-hover-underline-blue">{"hihi"}</span>
-      </div>
+      {dataset?.data.isPartOf && (
+        <BreadcrumbBlock isPartOf={dataset?.data.isPartOf} />
+      )}
 
       {metadata && (
         <h1 className="text-[36px] leading-[1.1] font-bold mt-4 mb-0">
@@ -323,12 +346,14 @@ const Dataset = () => {
                   <i className="ml-2 fa-solid fa-download"></i>
                 </p>
 
-                <a
-                  href="#"
-                  className="block px-4 py-2 text-gray-800 hover:bg-gray-100"
-                >
-                  Download ZIP (12.2MB)
-                </a>
+                {downloadSize?.data.storageSize && (
+                  <a
+                    href={`https://demo.dataverse.org/api/access/dataset/:persistentId/?persistentId=${dataset.data.persistentUrl}`}
+                    className="block px-4 py-2 text-gray-800 hover:bg-gray-100"
+                  >
+                    Download ZIP ({formatBytes(downloadSize?.data.storageSize)})
+                  </a>
+                )}
               </div>
             )}
           </div>
@@ -346,7 +371,7 @@ const Dataset = () => {
             <div> Dataset Metrics </div>
             <div className="p-4 border-l border-r border-b border-gray-300">
               {" "}
-              13 Downloads{" "}
+              {downloadCount?.downloadCount} Downloads{" "}
             </div>
           </div>
         </div>

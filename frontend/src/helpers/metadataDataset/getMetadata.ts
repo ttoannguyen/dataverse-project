@@ -112,3 +112,43 @@ export function getDepositDate(fields?: MetadataFields): string | null {
   );
   return typeof depositField?.value === "string" ? depositField.value : null;
 }
+
+export function getDepositor(fields: MetadataFields): string {
+  if (!Array.isArray(fields)) return "";
+
+  const field = fields.find(
+    (f) => f.typeName === "depositor" && f.typeClass === "primitive"
+  ) as PrimitiveField | undefined;
+
+  return field?.value?.trim() || "";
+}
+
+export function getKeywords(fields: MetadataFields): string {
+  if (!Array.isArray(fields)) return "";
+
+  const field = fields.find(
+    (f) => f.typeName === "keyword" && f.typeClass === "compound"
+  ) as CompoundField<{ keywordValue?: PrimitiveField }> | undefined;
+
+  const keywords = field?.value ?? [];
+
+  return keywords
+    .map((k) => k.keywordValue?.value?.trim() || "")
+    .filter(Boolean)
+    .join(", ");
+}
+
+export function getPublications(fields: MetadataFields): string {
+  if (!Array.isArray(fields)) return "";
+
+  const field = fields.find(
+    (f) => f.typeName === "publication" && f.typeClass === "compound"
+  ) as CompoundField<{ publicationCitation?: PrimitiveField }> | undefined;
+
+  const publications = field?.value ?? [];
+
+  return publications
+    .map((p) => p.publicationCitation?.value?.trim() || "")
+    .filter(Boolean)
+    .join("; ");
+}

@@ -1,3 +1,5 @@
+import type { DatasetParent } from "./file";
+
 export interface DatasetInterface {
   status: string;
   data: DatasetData;
@@ -14,6 +16,7 @@ export interface DatasetData {
   storageIdentifier: string;
   datasetType: string;
   latestVersion: DatasetVersion;
+  isPartOf?: DatasetParent; // optional: for breadcrumb
 }
 
 export interface DatasetVersion {
@@ -70,7 +73,15 @@ export interface DataFile {
   creationDate: string;
   publicationDate: string;
   fileAccessRequest: boolean;
-  isPartOf?: any; // optional: for breadcrumb
+}
+
+export interface isPartOfInterface {
+  type: string;
+  persistentIdentifier: string;
+  identifier: number;
+  version: string;
+  displayName: string;
+  isPartOf: isPartOfInterface;
 }
 
 export interface Checksum {
