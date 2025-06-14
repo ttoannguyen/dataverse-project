@@ -12,6 +12,7 @@ const datasetApi = {
       const response = await axios.get(
         `${apiUrl}/dataset/getDataset?persistentId=${id}`
       );
+      console.log(response.data)
       return response.data;
     } catch (error) {
       console.error("Init failed", error);

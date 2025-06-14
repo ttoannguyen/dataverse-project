@@ -24,7 +24,7 @@ import CitationDownloadBlock from "@/components/CitationDownloadBlock";
 // import "../../global.css";
 
 const FIle = () => {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
   const persistentId = searchParams.get("persistentId");
   const fileId = searchParams.get("fileId");
 
@@ -53,6 +53,7 @@ const FIle = () => {
           fileId,
           setError
         );
+        console.log(tempFile)
 
         if (tempFile) {
           console.log(tempFile);

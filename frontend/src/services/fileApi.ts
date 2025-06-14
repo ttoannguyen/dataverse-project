@@ -1,8 +1,8 @@
 import type { DataFileResponse, GetMetadata } from "@/types/file";
 import axios from "axios";
 
-const apiUrl = import.meta.env.VITE_API_URL;
-const dataverseUrl = import.meta.env.VITE_DATAVERSE_URL;
+const apiUrl = import.meta.env.VITE_API_BASE_URL;
+const dataverseUrl = import.meta.env.VITE_DATAVERSE_URL || "https://demo.dataverse.org/api";
 
 const fileApi = {
   getFile: async (
@@ -10,7 +10,7 @@ const fileApi = {
     setError: React.Dispatch<React.SetStateAction<string | null>>
   ): Promise<DataFileResponse | null> => {
     try {
-      const response = await axios.get(`${apiUrl}/v1/file/getFile?id=${id}`);
+      const response = await axios.get(`${apiUrl}/file/getFile?id=${id}`);
       return response.data;
     } catch (error) {
       console.error("Init failed", error);
@@ -22,7 +22,7 @@ const fileApi = {
   getMetadataFile: async (id: string): Promise<GetMetadata | null> => {
     try {
       const response = await axios.get(
-        `${apiUrl}/v1/file/getMetadata?id=${id}`
+        `${apiUrl}/file/getMetadata?id=${id}`
       );
       return response.data;
     } catch (error) {
@@ -42,7 +42,7 @@ const fileApi = {
   } | null> => {
     try {
       const response = await axios.get(
-        `${apiUrl}/v1/file/getDownloadCount?id=${id}`
+        `${apiUrl}/file/getDownloadCount?id=${id}`
       );
       return response.data;
     } catch (error) {
@@ -69,7 +69,7 @@ const fileApi = {
       previewerType = "SpreadsheetPreview";
     }
 
-    const rawCallback = `${dataverseUrl}/v1/files/${fileId}/metadata/${metadataId}/toolparams/4`;
+    const rawCallback = `${dataverseUrl}/files/${fileId}/metadata/${metadataId}/toolparams/4`;
     const encodedCallback = btoa(encodeURIComponent(rawCallback));
 
     return `https://demo.dataverse.org/previewers/v1.4/${previewerType}.html?callback=${encodedCallback}`;

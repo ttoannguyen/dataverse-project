@@ -69,14 +69,16 @@ const DataverseList = ({
                     <span className="font-medium">Size:</span>{" "}
                     {item.size_in_bytes?.toLocaleString()} bytes
                   </p>
-                  <a
-                    href={item.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  <Link
+                    to={`/file?fileId=${encodeURIComponent(
+
+                      item.file_id
+                    )
+                    }`}
                     className="text-blue-600 hover:text-blue-800 underline"
                   >
-                    Download file
-                  </a>
+                    View dataset
+                  </Link>
                 </li>
               );
 
