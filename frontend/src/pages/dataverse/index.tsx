@@ -65,7 +65,7 @@ const DataversePage = () => {
   };
 
   return (
-    <div className="flex gap-4 border pt-2">
+    <div className="flex gap-4 border p-2">
       <DataverseSideBar
         data={numberCountSideBar}
         selectedTypes={selectedTypes}
