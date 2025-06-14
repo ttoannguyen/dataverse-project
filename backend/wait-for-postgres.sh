@@ -2,7 +2,7 @@
 
 echo "Waiting for PostgreSQL to be ready..."
 
-until nc -z kms_postgres 15432; do
+until nc -z postgres_custom 5432; do
   echo "PostgreSQL is unavailable - sleeping"
   sleep 2
 done

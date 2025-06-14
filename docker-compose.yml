@@ -124,7 +124,7 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: admin
     ports:
-      - "10000:15432" # Host:Container
+      - "10000:5432" # Host:Container
     volumes:
       - pgdata_custom:/var/lib/postgresql/kms
     networks:
